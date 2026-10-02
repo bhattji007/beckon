@@ -1,4 +1,4 @@
-# Beckon.app — Toast Stack (initial draft)
+# Beckon.app
 
 Menu-bar macOS app. When a Claude Code session needs you, a card appears top-right over whatever you're doing, even fullscreen apps. Answer it there; focus goes back to your work.
 
@@ -61,7 +61,7 @@ Design rules baked in:
 - `Sources/Beckon/` — `SocketServer` (unix socket, same-uid check), `Store` (sessions, queue, decisions), `MessagingClient` (follow-ups over the session messaging socket), `OverlayController` (non-activating `NSPanel`, `canJoinAllSpaces` + `fullScreenAuxiliary`, hotkey, focus restore), `ToastStackView` (SwiftUI cards), `Installer` (settings.json merge/unmerge), `StatusBar` (menu + onboarding).
 - `Sources/Beckon/SettingsWindow.swift` (settings, hotkey recorder, diagnostics, uninstaller), `UpdateChecker.swift`, `MessagingClient.swift`.
 - `build.sh` — `swiftc` + `clang` directly, universal arm64 + x86_64, builds `build/Beckon.app`. Uses the 15.x SDK from Command Line Tools because the 26/27 SDKs need Xcode's SwiftUI macro plugin. `BECKON_ARCHS="arm64"` for a faster dev build.
-- `Resources/AppIcon.icns` and `Resources/icon/` (HTML source + Playwright renderer for the icon and the menu-bar bell).
+- `Resources/AppIcon.icns`, `Resources/brand/` (brand spec, SVG sources, Playwright renderer `render.mjs` for the icon and menu-bar mark), `Resources/Fonts/` (Familjen Grotesk, JetBrains Mono; OFL).
 - `../release/release.sh` signs, notarizes and packages a DMG/zip; see `../DISTRIBUTION.md`.
 
 ## Tested (2026-10-02, Claude Code 2.1.287, Warp)

@@ -15,7 +15,7 @@ final class OverlayController {
     private var hosting: NSHostingView<ToastStackView>!
     private var keyMonitor: Any?
     private var bag = Set<AnyCancellable>()
-    static let panelWidth: CGFloat = 440   // 380 card + shadow/hint margins
+    static let panelWidth: CGFloat = 472   // 440 panel + 16 pt shadow margin each side
 
     private init() {
         panel = OverlayPanel(contentRect: NSRect(x: 0, y: 0, width: Self.panelWidth, height: 200),

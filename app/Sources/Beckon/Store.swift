@@ -250,6 +250,12 @@ final class Store: ObservableObject {
         else if let bid = item.session.host.bundleId, let app = NSRunningApplication.runningApplications(withBundleIdentifier: bid).first { app.activate(options: [.activateIgnoringOtherApps]) }
     }
 
+    /// Make a waiting item the active one (moves it to the top of the panel).
+    func promote(_ item: PendingItem) {
+        guard let i = items.firstIndex(where: { $0.id == item.id }), i > 0 else { return }
+        items.remove(at: i); items.insert(item, at: 0); hoveredItem = nil; onItemsChanged?()
+    }
+
     /// Synthetic card used by onboarding and the "Test alert" menu item.
     func pushTestCard() {
         let s = sessions["__test"] ?? Session(id: "__test", cwd: NSHomeDirectory() + "/Developer/your-project", host: Host(name: "Beckon", bundleId: nil, glyph: "bell"), hostPid: nil, env: [:])

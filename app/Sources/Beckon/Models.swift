@@ -30,6 +30,15 @@ struct Host: Equatable {
     let glyph: String       // SF Symbol name
 
     static let unknown = Host(name: "Terminal", bundleId: nil, glyph: "terminal")
+    /// 1–2 letter code for the small glyph box in the overlay.
+    var code: String {
+        switch name {
+        case "Warp": return "W"; case "Ghostty": return "G"; case "iTerm2": return "iT"; case "Terminal": return "T"; case "kitty": return "K"
+        case "WezTerm": return "WT"; case "Hyper": return "H"; case "VS Code": return "VS"; case "Cursor": return "Cu"; case "Windsurf": return "WS"
+        case "JetBrains": return "JB"; case "Claude Desktop": return "C"; case "SSH": return "S"; case "tmux": return "tm"; case "Beckon": return "B"
+        default: return String(name.prefix(1))
+        }
+    }
 
     static func detect(env: [String: String], bundleIdFromProcess: String?) -> Host {
         let bid = env["__CFBundleIdentifier"] ?? bundleIdFromProcess ?? ""
@@ -64,13 +73,14 @@ struct Host: Equatable {
 }
 
 enum Palette {
+    /// Session colours from the brand spec: everything except mint, which is reserved for the accent.
     static let colors: [NSColor] = [
-        NSColor(srgbRed: 0.388, green: 0.400, blue: 0.945, alpha: 1), // indigo
-        NSColor(srgbRed: 0.063, green: 0.725, blue: 0.506, alpha: 1), // emerald
-        NSColor(srgbRed: 0.961, green: 0.620, blue: 0.043, alpha: 1), // amber
-        NSColor(srgbRed: 0.957, green: 0.247, blue: 0.369, alpha: 1), // rose
-        NSColor(srgbRed: 0.055, green: 0.647, blue: 0.914, alpha: 1), // sky
-        NSColor(srgbRed: 0.659, green: 0.333, blue: 0.969, alpha: 1), // violet
+        NSColor(srgbRed: 0.910, green: 0.627, blue: 0.298, alpha: 1), // amber   #E8A04C
+        NSColor(srgbRed: 0.435, green: 0.659, blue: 0.961, alpha: 1), // blue    #6FA8F5
+        NSColor(srgbRed: 0.780, green: 0.608, blue: 0.910, alpha: 1), // lavender #C79BE8
+        NSColor(srgbRed: 0.910, green: 0.827, blue: 0.435, alpha: 1), // yellow  #E8D36F
+        NSColor(srgbRed: 0.945, green: 0.545, blue: 0.545, alpha: 1), // coral   #F18B8B
+        NSColor(srgbRed: 0.373, green: 0.725, blue: 0.839, alpha: 1), // teal    #5FB9D6
     ]
     static func color(for key: String) -> NSColor {
         var h: UInt64 = 1469598103934665603
@@ -138,15 +148,65 @@ final class PendingItem: Identifiable, ObservableObject {
 
     var oneLine: String {
         switch kind {
-        case .permission(let tool, let input, _): return "\(tool) · \(PermissionSummary.chip(tool: tool, input: input))"
-        case .question(let qs, _): return qs.first?.text ?? "Question"
-        case .finished(let s): return s.isEmpty ? "Finished" : s
+        case .permission(let tool, let input, _): return PermissionSummary.oneLine(tool: tool, input: input, cwd: session.cwd)
+        case .question(let qs, _):
+            let q = qs.indices.contains(currentQuestion) ? qs[currentQuestion] : qs[0]
+            return (qs.count > 1 ? "Question \(currentQuestion + 1) of \(qs.count) · " : "") + q.text
+        case .finished(let s): return "Finished" + (s.isEmpty ? "" : " · " + s)
         case .info(let t): return t
         }
     }
 }
 
 enum PermissionSummary {
+    /// Short imperative title for the active card ("Run a shell command").
+    static func title(tool: String) -> String {
+        switch tool {
+        case "Bash": return "Run a shell command"
+        case "Edit", "MultiEdit": return "Edit a file"
+        case "Write": return "Write a file"
+        case "Read": return "Read a file"
+        case "NotebookEdit": return "Edit a notebook"
+        case "WebFetch", "WebSearch": return "Access the web"
+        case "Agent", "Task": return "Launch a subagent"
+        default: return tool.hasPrefix("mcp__") ? "Call an MCP tool" : "Use \(tool)"
+        }
+    }
+    /// One-line form for the waiting list ("Edit src/middleware/rateLimit.ts").
+    static func oneLine(tool: String, input: [String: Any], cwd: String? = nil) -> String {
+        let c = chip(tool: tool, input: input, cwd: cwd).replacingOccurrences(of: "\n", with: " ")
+        switch tool {
+        case "Bash": return c
+        case "Edit", "MultiEdit": return "Edit " + c
+        case "Write": return "Write " + c
+        case "Read": return "Read " + c
+        default: return title(tool: tool) + (c.isEmpty ? "" : " · " + c)
+        }
+    }
+    /// Short mono hint shown inside the Always button: the tail of the rule ("migrate:*", "middleware/**").
+    static func alwaysHint(tool: String, input: [String: Any], suggestions: [[String: Any]], cwd: String) -> String {
+        let rules = alwaysRules(tool: tool, input: input, suggestions: suggestions, cwd: cwd)
+        guard let r = rules.flatMap({ ($0["rules"] as? [[String: Any]]) ?? [] }).first else { return "" }
+        guard var c = r["ruleContent"] as? String else { return "all" }
+        c = c.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces)
+        if c.hasPrefix("//") || c.hasPrefix("/") || c.hasPrefix("~") {          // path pattern → last two components
+            let parts = c.split(separator: "/").filter { !$0.isEmpty }
+            c = parts.suffix(2).joined(separator: "/")
+        } else if let last = c.split(separator: " ").last {                      // command → last token
+            c = String(last)
+        }
+        if c.count > 18 { c = "…" + c.suffix(17) }
+        return c
+    }
+    /// Footnote under the actions: "Always writes Bash(pnpm prisma migrate:*) to this project".
+    static func alwaysFootnote(tool: String, input: [String: Any], suggestions: [[String: Any]], cwd: String) -> (rule: String, where_: String) {
+        let rules = alwaysRules(tool: tool, input: input, suggestions: suggestions, cwd: cwd)
+        let names = rules.flatMap { ($0["rules"] as? [[String: Any]]) ?? [] }.map(describe)
+        let dest = (rules.first?["destination"] as? String) ?? "localSettings"
+        let where_ = dest == "localSettings" || dest == "projectSettings" ? "to this project" : dest == "userSettings" ? "to your user settings" : "for this session"
+        return (names.joined(separator: ", "), where_)
+    }
+
     static func headline(tool: String) -> String {
         switch tool {
         case "Bash": return "Claude wants to run a command."
@@ -157,9 +217,9 @@ enum PermissionSummary {
         default: return tool.hasPrefix("mcp__") ? "Claude wants to call an MCP tool." : "Claude wants to use \(tool)."
         }
     }
-    static func chip(tool: String, input: [String: Any]) -> String {
+    static func chip(tool: String, input: [String: Any], cwd: String? = nil) -> String {
         if let c = input["command"] as? String { return c.replacingOccurrences(of: "\n", with: " ⏎ ") }
-        if let p = input["file_path"] as? String { return abbreviate(p) }
+        if let p = input["file_path"] as? String { return relative(p, to: cwd) }
         if let u = input["url"] as? String { return u }
         if let q = input["query"] as? String { return q }
         if let d = input["description"] as? String { return d }
@@ -167,6 +227,11 @@ enum PermissionSummary {
             return s.count > 140 ? String(s.prefix(140)) + "…" : s
         }
         return ""
+    }
+    /// Path relative to the project when inside it, else ~-abbreviated.
+    static func relative(_ path: String, to cwd: String?) -> String {
+        if let cwd, !cwd.isEmpty, path.hasPrefix(cwd + "/") { return String(path.dropFirst(cwd.count + 1)) }
+        return abbreviate(path)
     }
     static func abbreviate(_ path: String) -> String {
         let home = NSHomeDirectory()

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.1 — 2026-10-03
+
+- New overlay design, "Smoked glass": one glass panel with an active item, a Waiting list that expands on hover, and a footer with key hints. Mint return-key brand mark, Familjen Grotesk + JetBrains Mono (bundled, OFL). See `app/DESIGN-BRIEF.md §6` and `app/Resources/brand/BRAND.md`.
+- New app icon and menu-bar mark.
+- "Always" shows the rule tail inline and the full rule in the footnote; file paths are shown relative to the project.
+- Waiting rows can be promoted to active by clicking them.
+
 ## 0.9.0 — 2026-10-02 (public beta)
 
 First release. Toast Stack overlay for Claude Code on macOS.

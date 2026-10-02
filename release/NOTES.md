@@ -1,6 +1,1 @@
-First public build of Beckon.
-
-- Permission prompts, AskUserQuestion and "finished" cards from any Claude Code session appear as an overlay over whatever you are doing, including fullscreen apps.
-- Answer in place; focus returns to your work. ⌥Space focuses the top card.
-- One-click hook install into ~/.claude/settings.json (existing hooks preserved, backup in ~/.beckon/backups, removable from the menu).
-- If Beckon is not running, Claude Code behaves exactly as before.
+New overlay design, "Smoked glass": one glass panel with the active request on top, a Waiting list that expands on hover, and a footer with the key hints. Mint return-key brand mark, new app icon, Familjen Grotesk + JetBrains Mono bundled (OFL). "Always" shows the rule it will write; file paths are relative to the project. Still unsigned — see the Gatekeeper note.

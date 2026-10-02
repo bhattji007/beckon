@@ -30,8 +30,9 @@ cp build/obj/Beckon "$APP/Contents/MacOS/Beckon"
 cp build/obj/beckon-hook "$APP/Contents/MacOS/beckon-hook"
 cp Info.plist "$APP/Contents/Info.plist"
 [ -f Resources/AppIcon.icns ] && cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
-[ -f Resources/icon/menubar-22.png ] && cp Resources/icon/menubar-22.png "$APP/Contents/Resources/menubar.png"
-[ -f Resources/icon/menubar-44.png ] && cp Resources/icon/menubar-44.png "$APP/Contents/Resources/menubar@2x.png"
+[ -f Resources/brand/menubar-18.png ] && cp Resources/brand/menubar-18.png "$APP/Contents/Resources/menubar.png"
+[ -f Resources/brand/menubar-36.png ] && cp Resources/brand/menubar-36.png "$APP/Contents/Resources/menubar@2x.png"
+mkdir -p "$APP/Contents/Resources/Fonts"; cp Resources/Fonts/*.ttf Resources/Fonts/OFL-*.txt "$APP/Contents/Resources/Fonts/" 2>/dev/null || true
 codesign --force --deep --sign - "$APP" >/dev/null 2>&1 || true
 echo "built $APP"
 if [ "$1" = "--run" ]; then pkill -x Beckon 2>/dev/null || true; sleep 0.3; open "$APP"; fi

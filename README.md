@@ -4,7 +4,7 @@
 
 When a Claude Code session needs you — a permission prompt, a question, a finished task — Beckon shows a small card on top of whatever you are doing, even a fullscreen app. Answer it there. Focus returns to your work. Works with every terminal, the VS Code and JetBrains extensions, and Claude Desktop; handles many sessions and subagents at once; installs with one click and can never make Claude Code worse.
 
-<p align="center"><img src="app/Resources/icon/icon-1024.png" width="128" alt="Beckon icon"></p>
+<p align="center"><img src="app/Resources/brand/icon-1024.png" width="128" alt="Beckon icon"></p>
 
 ## Install
 

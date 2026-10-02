@@ -59,11 +59,16 @@ Semantics to communicate visually:
 - **Long content**: a 3-line shell command, a 220-char summary, 4 options with descriptions, 2+ questions ("Question 1 of 2").
 - Optional **empty/quiet** state is not needed: the panel hides.
 
-## 6. Current design (what you are replacing)
+## 6. Current design: "Smoked glass" (direction 2b, shipped in 0.9.1)
 
-Dark glass cards 380 pt wide, 16 pt radius, 1 px hairline, 4 pt session-colour stripe on the left; header row = colour dot · project · host chip · time · icon buttons (jump, close); uppercase 10 pt eyebrow (PERMISSION REQUEST / FINISHED / question header); body 13–14 pt; monospace chip for commands; action row of pill buttons with the primary filled in the session colour and keycaps inside when focused; a separate hint pill under the stack listing the shortcuts. Older cards fold to one line at 0.955 scale. Reference video: `videos/01-toast-stack.mp4`; HTML mock: `drafts/01-toast-stack.html`.
+One 440 pt glass panel (rgba(28,30,34,.45) over blur, 16 pt radius, inset top highlight, hairline, soft shadow) instead of separate cards. Brand spec: `app/Resources/brand/BRAND.md`. Fonts: Familjen Grotesk (UI) and JetBrains Mono (commands), bundled under `app/Resources/Fonts`, OFL.
 
-Known weaknesses to improve on: the eyebrow + headline + chip + path stack is tall for a permission card; the hint pill is a second floating object; folded cards lose the host; "Always" scope is only a tooltip; no visual grouping of same-session cards; the "Finished" card and a permission card look the same at a glance even though one is urgent and the other is not.
+- **Active item** at the top (padding 14): header row (session dot · project · host glyph box + name · "subagent" pill · time · "1 of N" in mono), 15 pt semibold title ("Run a shell command" / the question), body (mono command, option rows, summary + reply field, or info text), action row (Allow with the return mark in mint, Always with the rule tail in mono, Deny that tints red on hover, "Claude ↗" ghost button), and the footnote "Always writes Bash(…) to this project". A 2 pt mint bar with glow on the left marks keyboard focus.
+- **Waiting list**: "WAITING · N" label, then 36 pt rows (dot · project · host glyph · one-line summary · time). Hovering a row expands it inline with its full body and actions; clicking the row header promotes it to active.
+- **Footer** (38 pt): the mint return mark, key hints in mono (focused: "⏎ allow ⌥2 always ⌥3 deny ⌥J claude … esc"; unfocused: "⌥Space to use keys"), and "+N more" when the list is truncated at five rows.
+- Mint #3DDC97 is the only accent; session colours are amber, blue, lavender, yellow, coral, teal. Deny red #E5484D is destructive-only.
+
+The previous Toast Stack design (separate cards, indigo accent, SF fonts) is preserved in `videos/01-toast-stack.mp4` and git history before 0.9.1.
 
 ## 7. Deliverable
 
