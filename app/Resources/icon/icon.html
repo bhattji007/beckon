@@ -1,0 +1,120 @@
+<!doctype html>
+<!--
+  Beckon app icon — 1024×1024 source.
+  Rendered by render.mjs (Playwright screenshot of #icon with a transparent background).
+  Shape: macOS Big Sur squircle, 824 px on a 1024 canvas, continuous corners r≈185.
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; padding: 0; background: transparent; }
+  #icon { width: 1024px; height: 1024px; display: block; }
+</style>
+</head>
+<body>
+<svg id="icon" xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <!-- Apple squircle, 824×824, positioned at (100,100) -->
+    <path id="squircle" d="M 528 0 c 103.61 0 155.41 0 194.99 20.16 a 185 185 0 0 1 80.85 80.85 c 20.16 39.57 20.16 91.38 20.16 194.99 L 824 528 c 0 103.61 0 155.41 -20.16 194.99 a 185 185 0 0 1 -80.85 80.85 c -39.57 20.16 -91.38 20.16 -194.99 20.16 L 296 824 c -103.61 0 -155.41 0 -194.99 -20.16 a 185 185 0 0 1 -80.85 -80.85 c -20.16 -39.57 -20.16 -91.38 -20.16 -194.99 L 0 296 c 0 -103.61 0 -155.41 20.16 -194.99 a 185 185 0 0 1 80.85 -80.85 c 39.57 -20.16 91.38 -20.16 194.99 -20.16 Z"/>
+
+    <clipPath id="clip"><use href="#squircle"/></clipPath>
+
+    <!-- charcoal → indigo background -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0"    stop-color="#3b3e4e"/>
+      <stop offset="0.45" stop-color="#262a3e"/>
+      <stop offset="1"    stop-color="#1e1b4b"/>
+    </linearGradient>
+    <!-- soft indigo bloom in the lower-right so the gradient has depth -->
+    <radialGradient id="bloom" cx="0.72" cy="0.82" r="0.7">
+      <stop offset="0" stop-color="#4f46e5" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#4f46e5" stop-opacity="0"/>
+    </radialGradient>
+    <!-- top sheen -->
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"    stop-color="#ffffff" stop-opacity="0.14"/>
+      <stop offset="0.5"  stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <!-- inner hairline highlight, strongest at the top edge -->
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0"   stop-color="#ffffff" stop-opacity="0.55"/>
+      <stop offset="0.35" stop-color="#ffffff" stop-opacity="0.10"/>
+      <stop offset="1"   stop-color="#ffffff" stop-opacity="0.04"/>
+    </linearGradient>
+    <!-- bell fill: white with a whisper of cool tint toward the bottom -->
+    <linearGradient id="bellFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e6e7f5"/>
+    </linearGradient>
+    <!-- notification dot -->
+    <radialGradient id="dotFill" cx="0.38" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#8b8ff8"/>
+      <stop offset="0.55" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#4f46e5"/>
+    </radialGradient>
+
+    <!-- Apple-grid drop shadow for the tile (1024 scale: y 10, blur ~20) -->
+    <filter id="tileShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000" flood-opacity="0.42"/>
+    </filter>
+    <!-- soft shadow under the bell -->
+    <filter id="bellShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#05061a" flood-opacity="0.45"/>
+    </filter>
+    <!-- glow behind the dot -->
+    <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+
+    <!-- cut a ring out of the bell so the dot separates cleanly at every size -->
+    <mask id="bellMask">
+      <rect width="1024" height="1024" fill="#fff"/>
+      <circle cx="672" cy="352" r="98" fill="#000"/>
+    </mask>
+
+    <!-- The bell, drawn in a 1024 space and scaled ×1.15 about the centre on use.
+         Bounds ≈ x 318–706, y 268–762 (one continuous curve from dome to lip, no shoulder kink). -->
+    <g id="bell">
+      <!-- knob -->
+      <circle cx="512" cy="296" r="28"/>
+      <!-- body + lip -->
+      <path d="M 512 310
+               C 420 310 364 380 364 480
+               C 364 540 358 596 318 640
+               L 318 668
+               Q 318 684 334 684
+               L 690 684
+               Q 706 684 706 668
+               L 706 640
+               C 666 596 660 540 660 480
+               C 660 380 604 310 512 310 Z"/>
+      <!-- clapper -->
+      <path d="M 450 702 H 574 A 62 62 0 0 1 450 702 Z"/>
+    </g>
+  </defs>
+
+  <!-- tile -->
+  <g transform="translate(100 100)" filter="url(#tileShadow)">
+    <use href="#squircle" fill="url(#bg)"/>
+    <g clip-path="url(#clip)">
+      <rect width="824" height="824" fill="url(#bloom)"/>
+      <rect width="824" height="824" fill="url(#sheen)"/>
+      <!-- inner hairline: stroke 6, half clipped away → 3 px inside the edge -->
+      <use href="#squircle" fill="none" stroke="url(#rim)" stroke-width="6"/>
+    </g>
+  </g>
+
+  <!-- bell with dot, scaled up so the glyph fills ~69% of the tile height -->
+  <g transform="translate(512 512) scale(1.15) translate(-512 -512)">
+    <g filter="url(#bellShadow)">
+      <use href="#bell" fill="url(#bellFill)" mask="url(#bellMask)"/>
+    </g>
+    <circle cx="672" cy="352" r="78" fill="#6366f1" opacity="0.55" filter="url(#dotGlow)"/>
+    <circle cx="672" cy="352" r="78" fill="url(#dotFill)"/>
+    <!-- tiny specular on the dot -->
+    <ellipse cx="648" cy="324" rx="24" ry="15" fill="#fff" opacity="0.28" transform="rotate(-30 648 324)"/>
+  </g>
+</svg>
+</body>
+</html>

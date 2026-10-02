@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Beckon — Draft 3 — Edge Rail</title>
+<link rel="stylesheet" href="../render/harness.css">
+<style>
+/* ---------- Edge Rail ---------- */
+:root{--glass:rgba(24,24,30,.84);--hair:rgba(255,255,255,.12);--mono:"SF Mono",ui-monospace,Menlo,monospace}
+
+#rail{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:44px;padding:9px 0;border-radius:14px;
+  background:rgba(24,24,30,.80);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+  border:1px solid var(--hair);box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.06);
+  opacity:.92;display:flex;flex-direction:column;align-items:center;gap:8px}
+.slot{position:relative;width:36px;height:36px;display:flex;align-items:center;justify-content:center}
+.chip{width:28px;height:28px;border-radius:8px;background:var(--c);color:#fff;font-size:11px;font-weight:700;letter-spacing:.3px;
+  display:flex;align-items:center;justify-content:center;position:relative;z-index:1;text-shadow:0 1px 0 rgba(0,0,0,.25)}
+.ring{position:absolute;inset:0;border-radius:11px;padding:2px;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.sat{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;background:#a5b4fc;border:2px solid #1d1d24;z-index:2}
+.badge{position:absolute;top:-4px;right:-4px;min-width:15px;height:15px;border-radius:8px;padding:0 4px;background:#ff453a;color:#fff;
+  font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid #1d1d24;z-index:3;line-height:1}
+.badge.done{background:#30d158}
+
+/* toast */
+.toast{position:absolute;right:64px;width:300px;border-radius:12px;background:var(--glass);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);
+  border:1px solid var(--hair);box-shadow:0 12px 36px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);padding:10px 12px 9px 15px;color:#fff;opacity:0;overflow:hidden}
+.toast::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--c)}
+.hd{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;white-space:nowrap}
+.hd .nm{overflow:hidden;text-overflow:ellipsis}
+.host{font-size:10px;font-weight:500;color:#b8b8c6;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);padding:1px 6px;border-radius:5px;display:inline-flex;align-items:center;gap:4px;line-height:14px;white-space:nowrap}
+.host .g{display:inline-block;width:7px;height:7px;border-radius:2px;background:#3b82f6}
+.host .g.gho{background:transparent;color:#c9c9d4;font-family:var(--mono);font-size:9px;width:auto;height:auto;line-height:1}
+.hd .when{margin-left:auto;font-size:10px;color:#8e8e9c;font-weight:500}
+.toast .bd{margin-top:4px;font-size:12px;line-height:16px;color:#c9c9d4}
+.toast .bd code{font-family:var(--mono);font-size:11px;background:rgba(255,255,255,.08);padding:1px 5px;border-radius:4px;color:#eeeef4}
+.toast .ft{margin-top:6px;font-size:10px;color:#8e8e9c;display:flex;gap:5px;align-items:center}
+.toast .ft .kbd{font-size:9.5px;padding:0 5px;line-height:14px}
+
+/* panel */
+#panel{position:absolute;right:64px;top:50%;width:380px;border-radius:16px;background:var(--glass);backdrop-filter:blur(30px) saturate(160%);-webkit-backdrop-filter:blur(30px) saturate(160%);
+  border:1px solid var(--hair);box-shadow:0 24px 70px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);color:#fff;opacity:0;visibility:hidden;overflow:hidden}
+.tabs{display:flex;align-items:center;gap:6px;padding:10px 10px 0}
+.tab{display:flex;align-items:center;gap:7px;padding:5px 9px 5px 6px;border-radius:9px;font-size:12px;font-weight:500;color:#a7a7b6}
+.tab.on{background:rgba(255,255,255,.1);color:#fff}
+.tab .mini{width:18px;height:18px;border-radius:5px;background:var(--c);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff}
+.tab .tbd{min-width:14px;height:14px;border-radius:7px;background:#ff453a;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;color:#fff;line-height:1}
+.tab .tbd.done{background:#30d158}
+.tabs .right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.tail{padding:12px 14px 2px;font-size:12px;line-height:18px;color:rgba(255,255,255,.42);
+  -webkit-mask:linear-gradient(to bottom,rgba(0,0,0,.25) 0,#000 26px);mask:linear-gradient(to bottom,rgba(0,0,0,.25) 0,#000 26px)}
+.tail div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tail .who{color:rgba(255,255,255,.28);font-weight:600;margin-right:6px}
+.tail code{font-family:var(--mono);font-size:11px}
+.card{margin:8px 10px 10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:12px}
+.ch{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;white-space:nowrap}
+.ch .ico{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;background:rgba(255,255,255,.1)}
+.pill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:rgba(255,255,255,.1);color:#d4d4de;letter-spacing:.2px;line-height:14px}
+.pill.tool{background:color-mix(in srgb,var(--c) 28%,transparent);color:#fff}
+.ch .right{margin-left:auto;font-size:10px;color:#8e8e9c;font-weight:500}
+.q{font-size:13px;line-height:18px;color:#e8e8f0;margin-top:8px}
+.cmd{margin-top:10px;font-family:var(--mono);font-size:12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;color:#f1f1f6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmd b{color:#7a7a88;font-weight:400;margin-right:8px}
+.sub{font-size:11px;color:#8e8e9c;margin-top:7px}
+.acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{height:28px;padding:0 11px;border-radius:8px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.08);white-space:nowrap}
+.btn.pri{background:var(--c);border-color:transparent;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.btn.ghost{background:transparent;color:#b8b8c6}
+.btn .kbd{font-size:9.5px;padding:0 5px;line-height:14px;background:rgba(0,0,0,.25);border-color:rgba(255,255,255,.14)}
+.btn.press{transform:scale(.95);filter:brightness(1.18)}
+.opt{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);font-size:12.5px;margin-top:6px;white-space:nowrap}
+.opt i{width:14px;height:14px;border-radius:50%;border:1.5px solid rgba(255,255,255,.35);flex:none}
+.opt.sel{border-color:var(--c);background:color-mix(in srgb,var(--c) 16%,transparent)}
+.opt.sel i{border-color:var(--c);background:var(--c);box-shadow:inset 0 0 0 3px #1c1c22}
+.opt.press{transform:scale(.985)}
+.opt .rec{margin-left:auto;font-size:10px;color:var(--c);font-weight:600;filter:brightness(1.3)}
+.sum{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.sum span{font-size:11.5px;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,.08);color:#dcdce6;white-space:nowrap}
+.reply{margin-top:12px;height:34px;border-radius:9px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;padding:0 10px;font-size:12.5px;color:#fff;gap:1px;white-space:nowrap;overflow:hidden}
+.reply .ph{color:#7a7a88}
+.reply .cr{width:1.5px;height:16px;background:#fff;margin-left:1px;flex:none}
+.reply .hint{margin-left:auto;font-size:10px;color:#7a7a88;padding-left:8px;flex:none}
+.reply.focus{border-color:var(--c);box-shadow:0 0 0 3px color-mix(in srgb,var(--c) 25%,transparent)}
+.ok{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;color:#34d399;font-weight:600;height:28px;white-space:nowrap}
+.ok .ck{width:16px;height:16px;border-radius:50%;background:#30d158;display:flex;align-items:center;justify-content:center;flex:none}
+.pfoot{padding:0 14px 10px;font-size:10.5px;color:#7a7a88;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.pfoot .kbd{font-size:9.5px;padding:0 5px;line-height:14px}
+.pfoot .sp{flex:1}
+
+/* key hint HUD */
+#keyhint{position:absolute;right:24px;bottom:36px;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;background:var(--glass);
+  border:1px solid var(--hair);color:#fff;font-size:12px;opacity:0;box-shadow:0 10px 30px rgba(0,0,0,.35);white-space:nowrap}
+#keyhint .kbd{font-size:12px;padding:2px 8px;line-height:18px}
+#keyhint .lbl{color:#b8b8c6}
+
+/* browser liveness: fake scrollbar */
+#sb{position:absolute;right:3px;top:60px;width:7px;height:120px;border-radius:4px;background:rgba(0,0,0,.28)}
+</style>
+</head>
+<body>
+<script src="../render/harness.js"></script>
+<script>
+const TR={id:'tr',name:'tm-reco-app',mono:'TR',c:'#6366f1',rgb:'99,102,241',host:'Ghostty',g:'gho'};
+const PF={id:'pf',name:'portfolio',mono:'PF',c:'#10b981',rgb:'16,185,129',host:'VS Code',g:'vsc'};
+const CHECK='<svg viewBox="0 0 10 10" width="9" height="9"><path d="M2 5.2 L4.2 7.3 L8 2.8" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const hostTag=s=>`<span class="host">${s.g==='gho'?'<i class="g gho">›_</i>':'<i class="g vsc"></i>'}${s.host}</span>`;
+
+// ---- timeline (ms) ----
+const T={
+  title:[0,2200],
+  A:{on:6000,toastOff:10000,key:10500,open:10800,click:12400,close:13100},
+  B:{on:14500,chipClick:16400,open:16500,click:17900,close:18700},
+  C:{on:19500,key:20900,open:21200,type:22000,enter:25100,close:26200},
+  M:{a:27000,b:27700,key:29100,open:29400,click:30700,esc:32600,close:32700},
+  end:[37800,41800]
+};
+const DUR=41800;
+
+window.DRAFT={
+  title:'Edge Rail',
+  duration:DUR,
+  bg:'browser',
+  markup:`
+    <div id="sb"></div>
+    <div id="rail">
+      <div class="slot" id="slot-tr"><div class="ring" id="ring-tr"></div><div class="chip" id="chip-tr" style="--c:${TR.c}">TR</div><div class="sat" id="sat-tr"></div><div class="badge" id="badge-tr"></div></div>
+      <div class="slot" id="slot-pf"><div class="ring" id="ring-pf"></div><div class="chip" id="chip-pf" style="--c:${PF.c}">PF</div><div class="badge" id="badge-pf"></div></div>
+    </div>
+    <div class="toast" id="toast1"></div>
+    <div class="toast" id="toast2"></div>
+    <div id="panel"></div>
+    <div id="keyhint"></div>
+  `,
+  setup(H){
+    this.$=id=>document.getElementById(id);
+    this.P={};           // cached measured centers for cursor targets
+    this.art=document.querySelector('.bg-browser .art');
+  },
+
+  // ---- helpers ----
+  setHTML(el,html){ if(el.__html!==html){el.innerHTML=html;el.__html=html} },
+  center(sel,fallback){
+    const e=document.querySelector(sel);
+    if(e){const r=e.getBoundingClientRect(); if(r.width>0){this.P[sel]={x:r.left+r.width/2,y:r.top+r.height/2}}}
+    return this.P[sel]||fallback;
+  },
+
+  // chip state: 'work' | 'need' | 'done' ; sub: boolean (satellite needs)
+  chip(t,H,s,state,badgeNum,satNeed){
+    const ring=this.$('ring-'+s.id),chip=this.$('chip-'+s.id),badge=this.$('badge-'+s.id),sat=this.$('sat-'+s.id);
+    const pulse=(Math.sin(t/260)+1)/2;
+    if(state==='work'||satNeed){
+      const ang=(t*0.3)%360;
+      ring.style.opacity=1;
+      ring.style.background=`conic-gradient(from ${ang}deg, rgba(255,255,255,.92) 0deg 110deg, rgba(255,255,255,.10) 110deg 360deg)`;
+      chip.style.boxShadow='none';
+    }else if(state==='need'){
+      ring.style.opacity=1; ring.style.background=s.c;
+      chip.style.boxShadow=`0 0 0 ${3+2.5*pulse}px rgba(${s.rgb},${.16+.12*pulse}), 0 0 ${14+10*pulse}px rgba(${s.rgb},${.45+.3*pulse})`;
+    }else{ // done
+      ring.style.opacity=0; chip.style.boxShadow='none';
+    }
+    if(state==='done'){badge.className='badge done';badge.innerHTML=CHECK;badge.style.opacity=1}
+    else if(badgeNum){badge.className='badge';badge.textContent=badgeNum;badge.style.opacity=1}
+    else{badge.style.opacity=0}
+    if(sat){
+      if(satNeed){ sat.style.boxShadow=`0 0 0 ${2+2*pulse}px rgba(255,255,255,${.18+.14*pulse}), 0 0 ${8+6*pulse}px rgba(165,180,252,.9)`; sat.style.background='#fff' }
+      else { sat.style.boxShadow='none'; sat.style.background='#a5b4fc' }
+    }
+  },
+
+  toast(t,H,el,spec){
+    if(!spec){el.style.opacity=0;return null}
+    const {s,start,end,title,body,foot,y,top}=spec;
+    const o=H.window(t,start,end,220,200); if(o<=0){el.style.opacity=0;return null}
+    el.style.setProperty('--c',s.c);
+    this.setHTML(el,`<div class="hd"><span class="sess-dot" style="background:${s.c}"></span><span class="nm">${title}</span>${hostTag(s)}<span class="when">now</span></div>
+      <div class="bd">${body}</div>${foot?`<div class="ft">${foot}</div>`:''}`);
+    const x=H.lerp(40,0,H.prog(t,start,420,'back'));
+    const tp=top!=null?top:(y-el.offsetHeight/2);
+    el.style.opacity=o; el.style.top=tp+'px'; el.style.transform=`translateX(${x}px)`;
+    return tp+el.offsetHeight;
+  },
+
+  tabs(active,trB,pfB,s){
+    const tb=(x,b)=>b==='done'?`<span class="tbd done">${CHECK}</span>`:b?`<span class="tbd">${b}</span>`:'';
+    return `<div class="tabs">
+      <div class="tab ${active==='tr'?'on':''}" style="--c:${TR.c}"><span class="mini">TR</span>tm-reco-app${tb('tr',trB)}</div>
+      <div class="tab ${active==='pf'?'on':''}" style="--c:${PF.c}"><span class="mini">PF</span>portfolio${tb('pf',pfB)}</div>
+      <div class="right">${hostTag(s)}<span class="kbd">esc</span></div></div>`;
+  },
+
+  panel(t,H,spec){
+    const p=this.$('panel');
+    if(!spec){p.style.opacity=0;p.style.visibility='hidden';return}
+    const o=H.window(t,spec.open,spec.close,220,200);
+    if(o<=0){p.style.opacity=0;p.style.visibility='hidden';return}
+    p.style.setProperty('--c',spec.s.c);
+    this.setHTML(p,spec.html);
+    const x=H.lerp(40,0,H.prog(t,spec.open,450,'back'));
+    p.style.visibility='visible'; p.style.opacity=o; p.style.transform=`translate(${x}px,-50%)`;
+  },
+
+  keyhint(t,H,items){
+    const k=this.$('keyhint'); let show=null;
+    for(const it of items){ if(t>=it.from&&t<=it.to){show=it;break} }
+    if(!show){k.style.opacity=0;return}
+    const o=H.window(t,show.from,show.to,160,200), sc=H.lerp(.9,1,H.prog(t,show.from,300,'back'));
+    this.setHTML(k,show.html); k.style.opacity=o; k.style.transform=`scale(${sc})`;
+  },
+
+  render(t,H){
+    const $=this.$, A=T.A,B=T.B,C=T.C,M=T.M;
+    const KEY_OPT='<span class="kbd">⌥</span><span class="kbd">Space</span><span class="lbl">Focus Beckon</span>';
+
+    // ---- background liveness: article scroll + scrollbar ----
+    let scroll=120*H.prog(t,3000,2000,'inOut')+140*H.prog(t,6500,2500,'inOut')+60*H.prog(t,13900,1200,'inOut')+160*H.prog(t,34500,2200,'inOut');
+    this.art.style.transform=`translateY(${-scroll}px)`;
+    $('sb').style.top=(60+scroll*0.55)+'px';
+
+    // ---- chip states ----
+    let trState='work',trBadge=0,satNeed=false,pfState='work',pfBadge=0;
+    if(t>=A.on&&t<A.click){trState='need';trBadge=1}
+    if(t>=C.on&&t<C.enter){trState='done'}
+    if(t>=M.a&&t<M.click){satNeed=true;trBadge=1}
+    if(t>=B.on&&t<B.click){pfState='need';pfBadge=1}
+    if(t>=M.b){pfState='done'}
+    this.chip(t,H,TR,trState,trBadge,satNeed);
+    this.chip(t,H,PF,pfState,pfBadge,false);
+    // chip press (user clicks PF chip)
+    $('chip-pf').style.transform=(t>=B.chipClick&&t<B.chipClick+140)?'scale(.88)':'scale(1)';
+
+    // ---- toasts ----
+    const yTR=this.center('#slot-tr',{x:1408,y:427}).y, yPF=this.center('#slot-pf',{x:1408,y:473}).y;
+    let t1=null,t2=null;
+    if(t>=A.on&&t<=A.toastOff) t1={s:TR,start:A.on,end:A.toastOff,y:yTR,title:'tm-reco-app',body:'Permission · Bash <code>npm test -- --coverage</code>',foot:'<span class="kbd">⌥</span><span class="kbd">Space</span> to respond · your app keeps focus'};
+    if(t>=B.on&&t<=B.open) t1={s:PF,start:B.on,end:B.open,y:yPF,title:'portfolio',body:'Deploy target — Where should I deploy the preview?',foot:'3 options · click the chip or <span class="kbd">⌥</span><span class="kbd">Space</span>'};
+    if(t>=C.on&&t<=C.open) t1={s:TR,start:C.on,end:C.open,y:yTR,title:'tm-reco-app finished',body:'Fixed 3 failing tests · coverage 71% → 84% · 4 files changed',foot:'<span class="kbd">⌥</span><span class="kbd">Space</span> to reply'};
+    if(t>=M.a&&t<=M.open){
+      t1={s:TR,start:M.a,end:M.open,y:yTR-14,title:'tm-reco-app / tests',body:'Permission · Bash <code>rm -rf .coverage</code>',foot:'subagent · <span class="kbd">⌥</span><span class="kbd">Space</span> to respond'};
+    }
+    const b1=this.toast(t,H,$('toast1'),t1);
+    if(t>=M.b&&t<=M.open){
+      t2={s:PF,start:M.b,end:M.open,top:(b1||yTR+30)+8,title:'portfolio finished',body:'Preview live on Cloudflare Pages · 2 files'};
+    }
+    this.toast(t,H,$('toast2'),t2);
+
+    // ---- panel ----
+    let spec=null;
+    if(t>=A.open&&t<=A.close){
+      const pressed=t>=A.click&&t<A.click+130, done=t>=A.click+130;
+      spec={s:TR,open:A.open,close:A.close,html:this.tabs('tr',done?0:1,0,TR)+`
+        <div class="tail"><div><span class="who">claude</span>Reading <code>src/reco/scorer.test.ts</code></div>
+        <div><span class="who">claude</span>3 tests fail — the new weights changed rounding</div>
+        <div><span class="who">claude</span>Patched expectations, re-running with coverage</div></div>
+        <div class="card"><div class="ch"><span class="ico">⚿</span>Permission request<span class="pill tool">Bash</span><span class="right">main agent</span></div>
+        <div class="cmd"><b>$</b>npm test -- --coverage</div><div class="sub">in ~/Developer/tm-reco-app</div>
+        ${done?`<div class="ok"><span class="ck">${CHECK}</span>Allowed — tm-reco-app continues</div>`:
+        `<div class="acts"><span class="btn pri ${pressed?'press':''}" id="act-allow">Allow</span><span class="btn">Allow always for this project</span><span class="btn ghost">Deny</span></div>`}
+        </div><div class="pfoot"><span class="kbd">↵</span> allow<span class="kbd">D</span> deny<span class="sp"></span><span class="kbd">esc</span> back to Safari</div>`};
+    }
+    if(t>=B.open&&t<=B.close){
+      const pressed=t>=B.click&&t<B.click+130, done=t>=B.click+130;
+      const opt=(id,txt,rec,sel)=>`<div class="opt ${sel?'sel':''} ${pressed&&sel?'press':''}" id="${id}"><i></i>${txt}${rec?'<span class="rec">Recommended</span>':''}</div>`;
+      spec={s:PF,open:B.open,close:B.close,html:this.tabs('pf',0,done?0:1,PF)+`
+        <div class="tail"><div><span class="who">claude</span>Built with <code>next build</code> — 0 errors</div>
+        <div><span class="who">claude</span>OpenNext bundle ready (3.1 MB)</div>
+        <div><span class="who">claude</span>Preview can go to Pages or Vercel — asking you</div></div>
+        <div class="card"><div class="ch"><span class="ico">?</span>Deploy target<span class="pill">Question</span><span class="right">main agent</span></div>
+        <div class="q">Where should I deploy the preview?</div>
+        ${done?`<div class="ok"><span class="ck">${CHECK}</span>Cloudflare Pages — sent to portfolio</div>`:
+        opt('opt-cf','Cloudflare Pages',true,t>=B.click)+opt('opt-v','Vercel',false,false)+opt('opt-s','Skip deploy',false,false)}
+        </div><div class="pfoot"><span class="kbd">1</span>–<span class="kbd">3</span> pick<span class="sp"></span><span class="kbd">esc</span> back to Safari</div>`};
+    }
+    if(t>=C.open&&t<=C.close){
+      const typed=H.typed(t,'great — also update the README test section',C.type,22);
+      const sent=t>=C.enter+120, pressing=t>=C.enter&&t<C.enter+120;
+      spec={s:TR,open:C.open,close:C.close,html:this.tabs('tr',sent?0:'done',0,TR)+`
+        <div class="tail"><div><span class="who">claude</span><code>npm test -- --coverage</code> · 48 passed</div>
+        <div><span class="who">claude</span>Updated scorer.ts, weights.ts and 2 test files</div>
+        <div><span class="who">claude</span>Coverage 71% → 84%. Done — what next?</div></div>
+        <div class="card"><div class="ch"><span class="ico" style="background:#30d158">${CHECK}</span>Finished<span class="right">2 min 40 s</span></div>
+        <div class="sum"><span>Fixed 3 failing tests</span><span>coverage 71% → 84%</span><span>4 files changed</span></div>
+        ${sent?`<div class="ok"><span class="ck">${CHECK}</span>Sent → tm-reco-app</div>`:
+        `<div class="reply ${t>=C.type-300?'focus':''} ${pressing?'press':''}">${typed?`<span>${typed}</span>`:'<span class="ph">Reply to tm-reco-app…</span>'}${H.caret(t)&&!pressing?'<span class="cr"></span>':''}${typed?'':'<span class="hint">↵ send</span>'}</div>`}
+        </div><div class="pfoot"><span class="kbd">esc</span> back to Safari<span class="sp"></span>reply opens a new turn</div>`};
+    }
+    if(t>=M.open&&t<=M.close){
+      const pressed=t>=M.click&&t<M.click+130, done=t>=M.click+130;
+      spec={s:TR,open:M.open,close:M.close,html:this.tabs('tr',done?0:1,'done',TR)+`
+        <div class="tail"><div><span class="who">tests</span>Coverage report written to <code>.coverage/</code></div>
+        <div><span class="who">tests</span>Cleaning up temp artifacts before handing back</div>
+        <div><span class="who">claude</span>Waiting on subagent <b>tests</b></div></div>
+        <div class="card"><div class="ch"><span class="ico">⚿</span>Permission request<span class="pill tool">Bash</span><span class="right">subagent · tests</span></div>
+        <div class="cmd"><b>$</b>rm -rf .coverage</div><div class="sub">in ~/Developer/tm-reco-app</div>
+        ${done?`<div class="ok"><span class="ck">${CHECK}</span>Allowed — tests continues</div>`:
+        `<div class="acts"><span class="btn pri ${pressed?'press':''}" id="act-allow-m">Allow</span><span class="btn">Allow always for this project</span><span class="btn ghost">Deny</span></div>`}
+        </div><div class="pfoot">${done?'portfolio finished — waiting in its tab':'1 more: portfolio finished'}<span class="sp"></span><span class="kbd">⇥</span> switch<span class="kbd">esc</span> leave</div>`};
+    }
+    this.panel(t,H,spec);
+
+    // ---- key hints ----
+    this.keyhint(t,H,[
+      {from:A.key,to:A.open+700,html:KEY_OPT},
+      {from:C.key,to:C.open+700,html:KEY_OPT},
+      {from:C.enter-80,to:C.enter+700,html:'<span class="kbd">↵</span><span class="lbl">Send reply</span>'},
+      {from:M.key,to:M.open+700,html:KEY_OPT},
+      {from:M.esc-80,to:M.esc+800,html:'<span class="kbd">esc</span><span class="lbl">Back to Safari</span>'}
+    ]);
+
+    // ---- cursor ----
+    const allowA=this.center('#act-allow',{x:1050,y:560});
+    const chipPF=this.center('#chip-pf',{x:1408,y:473});
+    const optCF=this.center('#opt-cf',{x:1186,y:520});
+    const allowM=this.center('#act-allow-m',{x:1050,y:560});
+    const onCard=t<T.title[1]+150||t>T.end[0]+250;
+    H.cursor(t,onCard?[]:[
+      {t:0,x:620,y:560},{t:3000,x:620,y:560},{t:5000,x:690,y:610},
+      {t:6500,x:690,y:610},{t:9000,x:640,y:660},
+      {t:11400,x:640,y:660},{t:12250,x:allowA.x,y:allowA.y},
+      {t:12900,x:allowA.x,y:allowA.y},{t:13700,x:640,y:600},
+      {t:15300,x:640,y:600},{t:16250,x:chipPF.x,y:chipPF.y},
+      {t:16950,x:chipPF.x,y:chipPF.y},{t:17750,x:optCF.x,y:optCF.y},
+      {t:18500,x:optCF.x,y:optCF.y},{t:19300,x:660,y:600},
+      {t:29800,x:660,y:600},{t:30600,x:allowM.x,y:allowM.y},
+      {t:31200,x:allowM.x,y:allowM.y},{t:32000,x:650,y:620},
+      {t:34500,x:650,y:620},{t:36500,x:700,y:690}
+    ],[A.click,B.chipClick,B.click,M.click]);
+
+    // ---- captions ----
+    H.caption(t,[
+      {from:2600,to:5800,text:'You’re in Safari, fullscreen. Two Claude Code sessions run in the background.'},
+      {from:6300,to:10300,text:'Claude needs permission. The overlay appears — your app keeps focus.'},
+      {from:11000,to:13600,text:'Answer inline. Esc or Enter returns focus to your app.'},
+      {from:14800,to:18400,text:'A second session: its own color and host. Click the chip to open it.'},
+      {from:21600,to:26000,text:'Type a follow-up without switching windows.'},
+      {from:27500,to:31000,text:'Two at once: every chip keeps its own badge. One panel, flip tabs.'},
+      {from:31300,to:33400,text:'Resolve one — the other waits on the rail. Esc leaves it there.'},
+      {from:34000,to:37200,text:'Back to work. Nothing to switch to.'}
+    ]);
+
+    // ---- title / end cards ----
+    if(t<=T.title[1]) H.titleCard(t,{from:T.title[0],to:T.title[1],kicker:'BECKON · DRAFT 3',title:'Edge Rail',sub:'Ambient awareness first, interruption second — a slim rail on the screen edge that only unfolds when you ask.'});
+    else H.titleCard(t,{from:T.end[0],to:T.end[1],title:'Edge Rail',sub:'Glanceable status, always · Interrupts retract on their own · One panel, every session',note:'Mockup — not a real app yet'});
+  }
+};
+</script>
+</body>
+</html>

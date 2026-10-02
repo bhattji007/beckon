@@ -1,0 +1,6 @@
+{
+  "version": "0.9.0",
+  "url": "https://beckon.shubham.club/releases/Beckon-0.9.0.dmg",
+  "notes": "First public build of Beckon.\n\n- Permission prompts, AskUserQuestion and \"finished\" cards from any Claude Code session appear as an overlay over whatever you are doing, including fullscreen apps.\n- Answer in place; focus returns to your work. ⌥Space focuses the top card.\n- One-click hook install into ~/.claude/settings.json (existing hooks preserved, backup in ~/.beckon/backups, removable from the menu).\n- If Beckon is not running, Claude Code behaves exactly as before.\n",
+  "published": "2026-10-02"
+}

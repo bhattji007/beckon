@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Beckon — Answer Claude Code from anywhere on your Mac</title>
+  <meta name="description" content="Beckon is a macOS menu-bar app that turns Claude Code permission prompts, questions and 'I'm done' moments into a small overlay on top of whatever you're doing. Answer in place; focus returns to your work.">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0c10">
+  <link rel="canonical" href="https://beckon.shubham.club/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Beckon — Answer Claude Code from anywhere on your Mac">
+  <meta property="og:description" content="Permission prompts, questions and finished turns from every Claude Code session, answered from an overlay over any app. Even fullscreen ones.">
+  <meta property="og:url" content="https://beckon.shubham.club/">
+  <meta property="og:image" content="https://beckon.shubham.club/og.png">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0c10'/%3E%3Cpath d='M9 7h8.5a5.5 5.5 0 0 1 3.2 10 5.8 5.8 0 0 1-3.2 10.5H9zm4 3.6v4.6h4.2a2.3 2.3 0 1 0 0-4.6zm0 8.2v5.1h4.6a2.55 2.55 0 1 0 0-5.1z' fill='%23f5f5f7'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<header class="nav">
+  <a class="brand" href="#top" aria-label="Beckon home">
+    <span class="mark" aria-hidden="true">B</span><span>Beckon</span>
+  </a>
+  <nav aria-label="Page">
+    <a href="#how">How it works</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://github.com/bhattji007/beckon" rel="noopener">GitHub</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- Hero -->
+  <section class="hero">
+    <p class="eyebrow">For macOS 14+ · menu-bar app · free</p>
+    <h1>Answer Claude Code from anywhere on your Mac.</h1>
+    <p class="lede">
+      Permission prompts, questions and “I’m done” from every Claude Code session show up as a small card
+      over whatever you’re doing, even a fullscreen app. Answer in place. Focus goes straight back to your work.
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="/latest/Beckon.dmg" download>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Download for Mac
+      </a>
+      <p class="cta-note">
+        <a href="/latest/Beckon.zip">.zip instead</a> · <a href="/appcast.json">release feed</a> · Universal (Apple silicon &amp; Intel)
+      </p>
+    </div>
+
+    <figure class="demo">
+      <!-- Drop the real screen recording at site/demo.mp4 (and a poster at site/demo-poster.jpg). -->
+      <video controls muted playsinline preload="metadata" poster="./demo-poster.jpg" width="1280" height="800">
+        <source src="./demo.mp4" type="video/mp4">
+        Your browser can’t play this video. <a href="./demo.mp4">Download the demo.</a>
+      </video>
+      <figcaption>A permission card appears over a fullscreen editor; one click answers it and focus returns.</figcaption>
+    </figure>
+  </section>
+
+  <!-- How it works -->
+  <section class="how" id="how">
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li>
+        <span class="num" aria-hidden="true">1</span>
+        <h3>Download</h3>
+        <p>Open the dmg and drag Beckon to Applications. It lives in your menu bar; there is no window to manage.</p>
+      </li>
+      <li>
+        <span class="num" aria-hidden="true">2</span>
+        <h3>One-click hook install</h3>
+        <p>On first launch Beckon shows exactly which hook entries it will add to <code>~/.claude/settings.json</code> and asks for one click. Existing hooks are kept, a backup is saved, and running sessions pick it up instantly.</p>
+      </li>
+      <li>
+        <span class="num" aria-hidden="true">3</span>
+        <h3>Answer from the overlay</h3>
+        <p>Allow, deny, pick an option or type a reply on the card. <kbd>⌥</kbd><kbd>Space</kbd> focuses the top card, <kbd>Esc</kbd> hands you back. Dismiss a card and Claude’s normal prompt appears in the terminal.</p>
+      </li>
+    </ol>
+  </section>
+
+  <!-- Features strip -->
+  <section class="features" aria-label="Highlights">
+    <div><strong>Many sessions, one place.</strong> One card per request, newest on top, colour per project, host app shown as a chip.</div>
+    <div><strong>Only when you’re away.</strong> If the terminal that asked is already in front, Beckon stays quiet.</div>
+    <div><strong>Never steals focus.</strong> Cards appear without taking the keyboard; you opt in with a hotkey or a click.</div>
+    <div><strong>Logged.</strong> Every decision is appended to <code>~/.beckon/log.jsonl</code>. No private allow-lists.</div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="faq" id="faq">
+    <h2>FAQ</h2>
+
+    <details>
+      <summary>What does it require?</summary>
+      <p>macOS 14 (Sonoma) or newer, on Apple silicon or Intel, and Claude Code. No Accessibility, Screen Recording or Input Monitoring permissions are needed.</p>
+    </details>
+
+    <details>
+      <summary>Which terminals and editors does it work with?</summary>
+      <p>Any terminal (Ghostty, iTerm2, Terminal.app, Warp, kitty, WezTerm…), the VS Code and JetBrains extensions, and Claude Desktop. Hooks in <code>~/.claude/settings.json</code> run in all of them, and that is all Beckon relies on.</p>
+    </details>
+
+    <details>
+      <summary>What happens if Beckon isn’t running?</summary>
+      <p>If Beckon isn’t running, Claude Code works exactly as before. The hook is a tiny shim that exits immediately when it can’t reach the app, so Claude falls back to its normal terminal prompt. Quitting Beckon releases every held prompt first. Beckon can never make Claude Code worse.</p>
+    </details>
+
+    <details>
+      <summary>Does it phone home? What about my commands and code?</summary>
+      <p>No. Beckon makes no network connections except a periodic update check that fetches a small JSON file (<a href="/appcast.json">this one</a>) to tell you when a new version exists; nothing is sent, and nothing installs itself. The text shown on cards comes from the hook payload on your machine and stays there. The socket in <code>~/.beckon</code> is user-only.</p>
+    </details>
+
+    <details>
+      <summary>Does it auto-approve anything?</summary>
+      <p>Never. “Always” writes a regular Claude Code permission rule to the project’s <code>.claude/settings.local.json</code>, so it is visible to and honoured by Claude Code even with Beckon off. Hover the button to see the exact rule before you click.</p>
+    </details>
+
+    <details id="gatekeeper">
+      <summary>macOS says the app “can’t be verified” or is “damaged”. What now?</summary>
+      <p>Release builds are signed with a Developer ID and notarized by Apple, so you should only see this on a preview or self-built copy. If you do:</p>
+      <ol>
+        <li>Try to open Beckon once; dismiss the dialog (choose “Done”, not “Move to Trash”).</li>
+        <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll to the <em>Security</em> section and click <strong>Open Anyway</strong> next to the Beckon message. Confirm with Touch ID or your password.</li>
+        <li>Older systems: right-click (Control-click) Beckon.app in Applications and choose <strong>Open</strong>.</li>
+      </ol>
+      <p>If macOS calls the file “damaged”, the quarantine flag is in the way. In Terminal run <code>xattr -dr com.apple.quarantine /Applications/Beckon.app</code> and open it again. Only do this for a download whose SHA-256 matches the one on the <a href="https://github.com/bhattji007/beckon/releases" rel="noopener">release page</a>.</p>
+    </details>
+
+    <details>
+      <summary>How do I uninstall?</summary>
+      <p>Choose “Remove hooks” from the menu-bar menu (it removes exactly the entries it added), quit Beckon and drag it to the Trash. Optionally delete <code>~/.beckon</code>.</p>
+    </details>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p>Beckon is an independent project and is not affiliated with Anthropic. Claude and Claude Code are trademarks of Anthropic, PBC.</p>
+  <p><a href="https://github.com/bhattji007/beckon" rel="noopener">Source</a> · <a href="https://github.com/bhattji007/beckon/releases" rel="noopener">Releases &amp; checksums</a> · <a href="/appcast.json">appcast.json</a> · <a href="https://shubham.club">shubham.club</a></p>
+</footer>
+
+</body>
+</html>

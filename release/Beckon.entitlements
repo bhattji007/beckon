@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  Beckon is a non-sandboxed menu-bar app. With the hardened runtime enabled it needs no exceptions:
+  no JIT, no unsigned executable memory, no dyld environment variables, no library validation bypass,
+  and it talks to Claude Code over a Unix socket in ~/.beckon which is plain file I/O.
+  Keep this dictionary empty unless a feature genuinely requires an entitlement.
+-->
+<plist version="1.0">
+<dict/>
+</plist>

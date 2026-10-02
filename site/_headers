@@ -1,0 +1,9 @@
+# Cloudflare Pages headers. The in-app update checker fetches appcast.json from a non-browser client;
+# keep it uncached for long and allow cross-origin reads so the GitHub release page could embed it too.
+/appcast.json
+  Cache-Control: public, max-age=300
+  Access-Control-Allow-Origin: *
+  Content-Type: application/json; charset=utf-8
+
+/releases/*
+  Cache-Control: public, max-age=31536000, immutable

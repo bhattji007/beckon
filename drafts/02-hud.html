@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Beckon — Draft 2 — HUD</title>
+<link rel="stylesheet" href="../render/harness.css">
+<style>
+/* ---------- HUD (Spotlight / Raycast style) ---------- */
+#hud{position:absolute;left:400px;top:198px;width:640px;border-radius:16px;
+  background:rgba(20,20,24,.82);-webkit-backdrop-filter:blur(40px) saturate(1.5);backdrop-filter:blur(40px) saturate(1.5);
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 1px 0 rgba(255,255,255,.06) inset,0 30px 80px rgba(0,0,0,.45),0 10px 28px rgba(0,0,0,.30);
+  color:#f2f2f7;transform-origin:50% 0;overflow:hidden;opacity:0}
+#hud .slots{position:relative;height:266px;overflow:hidden}
+#hud .item{position:absolute;inset:0;padding:16px 20px 0 20px;opacity:0}
+#hud .hd{display:flex;align-items:center;gap:8px;height:20px;font-size:12px;color:#9a9aa6;white-space:nowrap}
+#hud .hd .sd{width:8px;height:8px;border-radius:50%;flex:none}
+#hud .hd .nm{color:#f2f2f7;font-weight:600;font-size:13px}
+#hud .hd .tm{color:#7c7c88}
+.tag{font-size:10.5px;padding:1px 7px;border-radius:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.10);color:#b8b8c4;display:inline-flex;gap:5px;align-items:center;line-height:15px;font-weight:500}
+.tag .g{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:9.5px;color:#9a9aa6}
+#hud .kick{margin-top:16px;font-size:11px;letter-spacing:1.3px;text-transform:uppercase;color:#9a9aa6;font-weight:600}
+#hud .big{margin-top:6px;font-size:21px;font-weight:600;letter-spacing:-.25px;line-height:28px;color:#f2f2f7;white-space:nowrap}
+#hud .big code{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:17px;font-weight:500;background:rgba(255,255,255,.08);padding:2px 8px;border-radius:7px;border:1px solid rgba(255,255,255,.08);letter-spacing:0;vertical-align:1px}
+#hud .ctx{margin-top:7px;font-size:12px;color:#9a9aa6;display:flex;gap:9px;align-items:center;white-space:nowrap}
+#hud .ctx .sep{color:#55555f}
+#hud .ctx .path{color:#c4c4ce}
+#hud .ctx .path b{color:#f2f2f7;font-weight:600}
+#hud .opts{position:relative;margin-top:16px}
+#hud .opt{position:relative;height:36px;margin-bottom:2px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:9px;font-size:14px;color:#dcdce4;z-index:1}
+#hud .opt .lab{flex:1}
+#hud .opt .sub{font-size:11px;color:#8a8a96}
+#hud .opt .chk{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;opacity:0}
+#hud .opt .k{opacity:.55}
+#hud .hl{position:absolute;left:0;right:0;height:36px;border-radius:9px;top:0;background:rgba(99,102,241,.35)}
+#hud .item.emerald .hl{background:rgba(16,185,129,.30)}
+#hud .reply{margin-top:18px;height:44px;border-radius:11px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;padding:0 14px;font-size:14px;color:#f2f2f7;white-space:nowrap;overflow:hidden}
+#hud .reply .ph{color:#6f6f7c}
+#hud .reply .cr{display:inline-block;width:1.5px;height:17px;background:#f2f2f7;vertical-align:-3px;margin-left:1px}
+#hud .reply .ret{margin-left:auto}
+#hud .sent{margin-top:18px;height:44px;border-radius:11px;display:flex;align-items:center;gap:10px;padding:0 14px;font-size:14px;font-weight:500;color:#f2f2f7;position:absolute;left:20px;right:20px;opacity:0}
+#hud .sent .ck{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff}
+#hud .stats{margin-top:10px;display:flex;gap:8px}
+#hud .stat{font-size:11.5px;padding:3px 9px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#c4c4ce}
+#hud .stat b{color:#f2f2f7;font-weight:600}
+#hud .q{position:absolute;right:20px;top:16px;height:20px;display:flex;align-items:center;gap:7px;font-size:11px;color:#9a9aa6;font-variant-numeric:tabular-nums}
+#hud .q .dots{display:flex;gap:5px;align-items:center}
+#hud .q .dots i{display:block;width:6px;height:6px;border-radius:50%;opacity:.4}
+#hud .q .dots i.on{opacity:1}
+#hud .ft{height:34px;border-top:1px solid rgba(255,255,255,.08);display:flex;align-items:center;padding:0 20px;gap:16px;font-size:11px;color:#8a8a96;white-space:nowrap}
+#hud .ft .h{display:inline-flex;gap:5px;align-items:center}
+#hud .ft .sp{flex:1}
+#hud .ft .brand{color:#6f6f7c;letter-spacing:.3px;font-weight:600}
+
+/* ---------- peek (sliver at top-center edge) ---------- */
+#nub{position:absolute;left:50%;top:0;width:40px;height:7px;margin-left:-20px;border-radius:0 0 6px 6px;background:rgba(20,20,24,.55);box-shadow:0 0 0 1px rgba(255,255,255,.1)}
+#peek{position:absolute;left:50%;top:0;transform:translateX(-50%);opacity:0}
+#peek .pk{height:26px;border-radius:0 0 11px 11px;background:rgba(20,20,24,.90);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 8px 24px rgba(0,0,0,.35);display:flex;align-items:center;padding:0 10px 0 9px;gap:7px;color:#f2f2f7;white-space:nowrap}
+#peek .slv{width:10px;height:13px;border-radius:3px;flex:none;display:none}
+#peek .cnt{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;color:#f2f2f7;min-width:7px}
+#peek .lbl{overflow:hidden;white-space:nowrap;width:0;display:flex;align-items:center;gap:7px;font-size:11.5px;color:#c4c4ce}
+#peek .lbl .lt{flex:none}
+#peek .lbl .kbd{flex:none}
+#meas{position:absolute;left:-9999px;top:-9999px;visibility:hidden;white-space:nowrap;font-size:11.5px}
+
+/* ---------- key hint chip ---------- */
+#key{position:absolute;left:50%;top:512px;transform:translateX(-50%);opacity:0;background:rgba(20,20,24,.88);color:#f2f2f7;font-size:13px;font-weight:500;padding:6px 12px;border-radius:9px;box-shadow:0 0 0 1px rgba(255,255,255,.14),0 10px 30px rgba(0,0,0,.35);white-space:nowrap;letter-spacing:.2px}
+
+/* ---------- figma selection (fake app is "live") ---------- */
+#sel{position:absolute;opacity:0;outline:2px solid #0d99ff;outline-offset:-1px}
+#sel i{position:absolute;width:8px;height:8px;background:#fff;border:1.5px solid #0d99ff;border-radius:1px}
+#sel i.a{left:-4px;top:-4px}#sel i.b{right:-4px;top:-4px}#sel i.c{left:-4px;bottom:-4px}#sel i.d{right:-4px;bottom:-4px}
+#sel .dim{position:absolute;left:50%;bottom:-24px;transform:translateX(-50%);background:#0d99ff;color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+</style>
+</head>
+<body>
+<script src="../render/harness.js"></script>
+<script>
+(function(){
+  const INDIGO='#6366f1', EMERALD='#10b981';
+  const SESS={
+    reco:{name:'tm-reco-app',color:INDIGO,cls:'indigo',host:'Ghostty',glyph:'>_',cwd:'~/dev/tm-reco-app'},
+    port:{name:'portfolio',color:EMERALD,cls:'emerald',host:'VS Code',glyph:'</>',cwd:'~/dev/portfolio'}
+  };
+  const PERM_OPTS=[{lab:'Allow',k:'1'},{lab:'Allow always for this project',k:'2'},{lab:'Deny',k:'3'}];
+
+  // ---- item specs ----
+  const VIEWS={
+    A:{sess:SESS.reco,kick:'Permission · Bash',big:'Run <code>npm test -- --coverage</code>?',path:'tm-reco-app › <b>main</b>',opts:PERM_OPTS},
+    B:{sess:SESS.port,kick:'Question · Deploy target',big:'Where should I deploy the preview?',path:'portfolio › <b>main</b>',
+       opts:[{lab:'Cloudflare Pages',sub:'recommended',k:'1'},{lab:'Vercel',k:'2'},{lab:'Skip deploy',k:'3'}]},
+    C:{sess:SESS.reco,kick:'Finished',big:'Fixed 3 failing tests · coverage 71% → 84%',path:'tm-reco-app › <b>main</b>',
+       stats:['<b>4</b> files changed','<b>+118</b> / <b>−42</b>','<b>12</b> tests passing'],reply:'Reply to tm-reco-app…'},
+    M0:{sess:SESS.reco,kick:'Permission · Bash · subagent',big:'Run <code>rm -rf .coverage</code>?',path:'tm-reco-app › <b>tests</b>',opts:PERM_OPTS},
+    M1:{sess:SESS.port,kick:'Finished',big:'Preview deployed to Cloudflare Pages',path:'portfolio › <b>main</b>',
+       stats:['<b>2</b> files changed','<b>preview-7f3a</b>.pages.dev'],reply:'Reply to portfolio…'}
+  };
+
+  function itemHTML(v){
+    const s=v.sess;
+    let body='';
+    if(v.opts){
+      body=`<div class="opts"><div class="hl"></div>${v.opts.map(o=>`<div class="opt"><span class="chk" style="background:${s.color}">✓</span><span class="lab">${o.lab}${o.sub?` <span class="sub">· ${o.sub}</span>`:''}</span><span class="kbd k">${o.k}</span></div>`).join('')}</div>`;
+    }else{
+      body=`<div class="stats">${v.stats.map(x=>`<span class="stat">${x}</span>`).join('')}</div>
+        <div class="reply"><span class="rt"><span class="ph">${v.reply}</span></span><span class="cr"></span><span class="kbd ret">⏎ send</span></div>
+        <div class="sent" style="background:${s.color}33;border:1px solid ${s.color}66"><span class="ck" style="background:${s.color}">✓</span><span>Sent → ${s.name}</span></div>`;
+    }
+    return `<div class="hd"><span class="sd" style="background:${s.color}"></span><span class="nm">${s.name}</span><span class="tag"><span class="g">${s.glyph}</span>${s.host}</span><span class="tm">just now</span></div>
+      <div class="kick">${v.kick}</div>
+      <div class="big">${v.big}</div>
+      <div class="ctx"><span class="mono">${s.cwd}</span><span class="sep">·</span><span class="path">${v.path}</span></div>
+      ${body}`;
+  }
+
+  // ---- scenes: open / switches / resolve / fold ----
+  // switches: at time t, show view v (sliding in from dir side); resolve: Enter on view (flash), fold: HUD collapses
+  const SCENES=[
+    {id:'A',open:9300,fold:11950,views:['A'],sw:[{t:9300,v:0}],res:[{t:11700,v:0}],hl:{A:[[0,0],[10500,1],[11100,0]]}},
+    {id:'B',open:14800,fold:17450,views:['B'],sw:[{t:14800,v:0}],res:[{t:17200,v:0}],hl:{B:[[0,0]]}},
+    {id:'C',open:20300,fold:25650,views:['C'],sw:[{t:20300,v:0}],res:[{t:24500,v:0}],typing:{v:'C',start:21300,text:'great — also update the README test section',enter:24500}},
+    {id:'M',open:28600,fold:33000,views:['M0','M1'],sw:[{t:28600,v:0},{t:29800,v:1,dir:'left'},{t:30900,v:0,dir:'right'},{t:31950,v:1,dir:'left'}],res:[{t:31800,v:0}],hl:{M0:[[0,0]]}}
+  ];
+  const KEYS=[[9300,'⌥ Space'],[10500,'↓'],[11100,'↑'],[11700,'⏎'],[14800,'⌥ Space'],[17200,'⏎'],[20300,'⌥ Space'],[24500,'⏎'],[28600,'⌥ Space'],[29800,'⇥'],[30900,'⇧ ⇥'],[31800,'⏎'],[33000,'esc']];
+
+  // ---- peek states ----
+  function peekState(t,H){
+    const w=(a,b)=>H.window(t,a,b,320,260);
+    if(t>=5500&&t<9300) return {cols:[INDIGO],n:1,label:'tm-reco-app · needs permission',wide:w(5750,8400),at:5500,kbd:true};
+    if(t>=13200&&t<14800) return {cols:[EMERALD],n:1,label:'portfolio · has a question',wide:w(13450,14600),at:13200,kbd:true};
+    if(t>=18800&&t<20300) return {cols:[INDIGO],n:1,label:'tm-reco-app · finished',wide:w(19050,20100),at:18800,kbd:true};
+    if(t>=26800&&t<28600){
+      if(t<27500) return {cols:[INDIGO],n:1,label:'tm-reco-app › tests · needs permission',wide:w(27050,28400),at:26800,kbd:false,bump:26800};
+      return {cols:[INDIGO,EMERALD],n:2,label:'tm-reco-app › tests · needs permission  +  portfolio · finished',wide:w(27050,28400),at:26800,kbd:true,bump:27500};
+    }
+    if(t>=33250) return {cols:[EMERALD],n:1,label:'portfolio · finished',wide:0,at:33250};
+    return null;
+  }
+
+  const FRAMES={onb:{x:380,y:150,w:360,h:640},home:{x:790,y:150,w:360,h:640}};
+  function selected(t){
+    if(t<3600)return null; if(t<7200)return 'home'; if(t<27400)return 'onb'; if(t<35100)return 'home'; return 'onb';
+  }
+  const CUR_PATH=[{t:2200,x:700,y:520},{t:3500,x:900,y:320},{t:5400,x:1010,y:600},{t:7100,x:640,y:470},{t:8900,x:560,y:690},
+    {t:12500,x:560,y:690},{t:13900,x:700,y:400},{t:14700,x:720,y:380},
+    {t:18000,x:720,y:380},{t:18700,x:620,y:300},{t:20200,x:560,y:360},
+    {t:26000,x:560,y:360},{t:27300,x:1000,y:650},{t:28500,x:1040,y:600},
+    {t:33500,x:1040,y:600},{t:35000,x:700,y:560},{t:36500,x:620,y:650},{t:37900,x:610,y:660}];
+  const CLICKS=[3600,7200,27400,35100];
+
+  const CAPS=[
+    {from:2400,to:5300,text:'You’re in Figma, fullscreen. Two Claude Code sessions run in the background.'},
+    {from:5800,to:9100,text:'Claude needs permission. A sliver peeks in at the top edge — your app keeps focus.'},
+    {from:9500,to:12600,text:'⌥Space summons the HUD. Answer inline — Esc or Enter returns focus to your app.'},
+    {from:15100,to:17700,text:'A different session, a different color — same keystrokes, same place.'},
+    {from:20600,to:25500,text:'Type a follow-up without switching windows.'},
+    {from:26900,to:28400,text:'Two events land within a second.'},
+    {from:28900,to:33600,text:'Several at once? An explicit queue. Tab between them, resolve one — the rest wait.'},
+    {from:34300,to:37700,text:'Back to work. Nothing to switch to.'}
+  ];
+
+  window.DRAFT={
+    title:'HUD', duration:42000, bg:'figma',
+    markup:`
+      <div id="sel"><i class="a"></i><i class="b"></i><i class="c"></i><i class="d"></i><div class="dim">360 × 640</div></div>
+      <div id="nub"></div>
+      <div id="peek"><div class="pk"><span class="slv s0"></span><span class="slv s1"></span><span class="cnt">1</span><span class="lbl"><span class="lt"></span><span class="kbd kb">⌥ Space</span></span></div></div>
+      <div id="meas"><span class="lt"></span></div>
+      <div id="hud">
+        <div class="slots"></div>
+        <div class="q"><span class="dots"><i></i><i></i></span><span class="qt">1 of 1</span></div>
+        <div class="ft"><span class="h"><span class="kbd">↑</span><span class="kbd">↓</span> move</span><span class="h"><span class="kbd">⏎</span> select</span><span class="h"><span class="kbd">esc</span> back to app</span><span class="sp"></span><span class="h tabh"><span class="kbd">⇥</span> next event</span><span class="brand">Beckon</span></div>
+      </div>
+      <div id="key"></div>`,
+    setup(H){
+      const slots=document.querySelector('#hud .slots');
+      this.items={};
+      for(const k in VIEWS){const e=H.el('div','item '+VIEWS[k].sess.cls,itemHTML(VIEWS[k]));e.dataset.v=k;slots.appendChild(e);this.items[k]=e;}
+      this.measLT=document.querySelector('#meas .lt');
+      const tb=document.querySelector('.bg-figma .tb'); if(tb) tb.style.top='46px';
+      this.slotsEl=slots; this.keyEl=document.getElementById('key');
+      this.measKbd=(()=>{const k=H.el('span','kbd','⌥ Space');document.getElementById('meas').appendChild(k);return k.offsetWidth})();
+    },
+    render(t,H){
+      const D=this;
+      // ---------- fake app: selection + cursor ----------
+      const sel=document.getElementById('sel'); const sk=selected(t);
+      if(sk){const f=FRAMES[sk];sel.style.opacity=1;sel.style.left=f.x+'px';sel.style.top=f.y+'px';sel.style.width=f.w+'px';sel.style.height=f.h+'px';}else sel.style.opacity=0;
+      H.cursor(t,(t<2300||t>38300)?[]:CUR_PATH,CLICKS);
+
+      // ---------- scene lookup ----------
+      let sc=null;
+      for(const s of SCENES){ if(t>=s.open-50 && t<s.fold+400){sc=s;break} }
+      const hud=document.getElementById('hud');
+      let hudV=0;
+      if(sc){
+        const o=H.prog(t,sc.open,450,'back');
+        const c=t>=sc.fold?H.prog(t,sc.fold,280,'out'):0;
+        const v=o*(1-c);
+        hudV=H.clamp(v);
+        hud.style.opacity=H.clamp(H.prog(t,sc.open,220,'out'))*(1-c);
+        hud.style.transform=`scale(${H.lerp(.96,1,v)}) translateY(${H.lerp(-12,0,v)}px)`;
+      }else{ hud.style.opacity=0; }
+
+      // ---------- items ----------
+      for(const k in D.items){D.items[k].style.opacity=0;}
+      if(sc){
+        // active switch
+        let cur=null,prev=null;
+        for(let i=0;i<sc.sw.length;i++){ if(t>=sc.sw[i].t){cur=sc.sw[i];prev=i>0?sc.sw[i-1]:null;} }
+        const SL=320; let p=1;
+        if(cur&&prev&&t<cur.t+SL){ p=H.ease.out((t-cur.t)/SL); }
+        const hOf=i=>VIEWS[sc.views[i]].opts?266:232;
+        const slotH=(cur&&prev&&p<1)?H.lerp(hOf(prev.v),hOf(cur.v),p):(cur?hOf(cur.v):266);
+        D.slotsEl.style.height=slotH+'px'; D.keyEl.style.top=(198+slotH+34+18)+'px';
+        const place=(idx,x,op)=>{const e=D.items[sc.views[idx]];e.style.opacity=op;e.style.transform=`translateX(${x}px)`;};
+        // folding with no remaining items: slide the current one left while folding
+        const foldSlide=(t>=sc.fold&&sc.res.some(r=>r.t<sc.fold&&r.t>sc.fold-400))?H.prog(t,sc.fold,280,'in'):0;
+        if(cur){
+          if(prev&&p<1){
+            const d=cur.dir==='left'?1:-1;
+            place(prev.v,-d*p*70,1-p);
+            place(cur.v,d*(1-p)*70,p);
+          }else{
+            place(cur.v,-foldSlide*60,1-foldSlide);
+          }
+        }
+        // highlight + flash per options view
+        for(const idx in sc.views){
+          const k=sc.views[idx]; const v=VIEWS[k]; const e=D.items[k];
+          if(v.opts){
+            const steps=(sc.hl&&sc.hl[k])||[[0,0]];
+            let hi=steps[0][1], from=hi, st=-1e9;
+            for(const s of steps){ if(t>=s[0]){from=hi;hi=s[1];st=s[0];} }
+            const mv=H.prog(t,st,140,'out'); const y=H.lerp(from,hi,mv)*38;
+            const hl=e.querySelector('.hl'); hl.style.transform=`translateY(${y}px)`;
+            const r=sc.res.find(r=>sc.views[r.v]===k);
+            const flash=r&&t>=r.t?1:0;
+            hl.style.background=flash?v.sess.color+(v.sess.cls==='indigo'?'b3':'99'):(v.sess.cls==='indigo'?'rgba(99,102,241,.35)':'rgba(16,185,129,.30)');
+            e.querySelectorAll('.opt').forEach((o,i)=>{o.querySelector('.chk').style.opacity=flash&&i===hi?1:0;o.style.color=flash&&i===hi?'#fff':'#dcdce4';o.style.fontWeight=flash&&i===hi?'600':'400';});
+          }else{
+            const txtEl=e.querySelector('.reply .rt'), cr=e.querySelector('.reply .cr'), sent=e.querySelector('.sent'), rep=e.querySelector('.reply');
+            const ty=sc.typing&&sc.typing.v===k?sc.typing:null;
+            let typed=ty?H.typed(t,ty.text,ty.start,22):'';
+            const isSent=ty&&t>=ty.enter;
+            if(typed) txtEl.textContent=typed; else txtEl.innerHTML=`<span class="ph">${v.reply}</span>`;
+            cr.style.opacity=(!isSent&&H.caret(t))?1:0;
+            const sp=isSent?H.prog(t,ty.enter,220,'out'):0;
+            rep.style.opacity=1-sp; sent.style.opacity=sp; sent.style.transform=`translateY(${(1-sp)*6}px)`;
+            sent.style.top=rep.offsetTop-18+'px';
+          }
+        }
+        // queue indicator
+        const q=hud.querySelector('.q'); const dots=q.querySelectorAll('.dots i');
+        const alive=sc.views.map((k,i)=>({k,i,gone:sc.res.some(r=>r.v===i&&t>=r.t+100)})).filter(x=>!x.gone);
+        const curIdx=cur?cur.v:0; const pos=alive.findIndex(x=>x.i===curIdx);
+        q.querySelector('.qt').textContent=`${Math.max(1,pos+1)} of ${Math.max(1,alive.length)}`;
+        dots.forEach((d,i)=>{const a=alive[i]; if(!a){d.style.display='none';return} d.style.display='block'; d.style.background=VIEWS[a.k].sess.color; d.className=a.i===curIdx?'on':''; d.style.boxShadow=a.i===curIdx?`0 0 0 2px ${VIEWS[a.k].sess.color}44`:'none';});
+        q.style.opacity=alive.length>1?1:.75;
+        hud.querySelector('.tabh').style.opacity=alive.length>1?1:0;
+      }
+
+      // ---------- peek ----------
+      const pk=peekState(t,H); const peek=document.getElementById('peek'); const nub=document.getElementById('nub');
+      if(pk){
+        const inP=H.prog(t,pk.at,420,'back');
+        let bump=0; if(pk.bump){const b=H.clamp((t-pk.bump)/260); bump=Math.sin(b*Math.PI)*.08;}
+        peek.style.opacity=H.clamp(H.prog(t,pk.at,160,'out'));
+        peek.style.transform=`translateX(-50%) translateY(${H.lerp(-30,0,inP)}px) scale(${1+bump})`;
+        const s0=peek.querySelector('.s0'), s1=peek.querySelector('.s1');
+        s0.style.display='block'; s0.style.background=pk.cols[0];
+        s1.style.display=pk.cols[1]?'block':'none'; if(pk.cols[1])s1.style.background=pk.cols[1];
+        peek.querySelector('.cnt').textContent=pk.n;
+        const lt=peek.querySelector('.lt'), lbl=peek.querySelector('.lbl'), kb=peek.querySelector('.kb');
+        lt.textContent=pk.label; D.measLT.textContent=pk.label;
+        const full=D.measLT.offsetWidth+(pk.kbd?D.measKbd+7:0);
+        kb.style.display=pk.kbd?'inline-block':'none';
+        const wp=H.ease.out(pk.wide);
+        lbl.style.width=(full*wp)+'px'; lbl.style.opacity=wp; lbl.style.marginLeft=wp>0?(2*wp)+'px':'0';
+        nub.style.opacity=0;
+      }else{
+        peek.style.opacity=0;
+        nub.style.opacity= hudV>0 ? 0 : .9;
+      }
+
+      // ---------- key hint ----------
+      const key=document.getElementById('key'); let kv=0,kt='';
+      for(const [kt0,lab] of KEYS){ if(t>=kt0&&t<kt0+720){kv=H.window(t,kt0,kt0+720,120,220);kt=lab;} }
+      key.textContent=kt; key.style.opacity=kv;
+      key.style.transform=`translateX(-50%) scale(${H.lerp(.9,1,kv)}) translateY(${(1-kv)*4}px)`;
+
+      // ---------- captions + cards ----------
+      H.caption(t,CAPS);
+      if(t<2600) H.titleCard(t,{from:0,to:2200,kicker:'BECKON · DRAFT 2',title:'HUD',sub:'A Spotlight-style HUD that waits as a sliver at the top edge and unfolds only when you summon it.'});
+      else H.titleCard(t,{from:38200,to:42000,title:'HUD',sub:'Keyboard-first · One thing at a time · Explicit queue',note:'Mockup — not a real app yet'});
+    }
+  };
+})();
+</script>
+</body>
+</html>

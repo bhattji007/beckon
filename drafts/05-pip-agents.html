@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Draft 5 — Picture-in-Picture Agents</title>
+<link rel="stylesheet" href="../render/harness.css">
+<style>
+/* ---- PiP windows ---- */
+.pip{position:absolute;width:340px;border-radius:14px;background:rgba(17,17,24,.94);backdrop-filter:blur(22px) saturate(1.2);-webkit-backdrop-filter:blur(22px) saturate(1.2);border:1px solid rgba(255,255,255,.12);color:#e6e6ee;overflow:hidden}
+.pip .bar{height:34px;display:flex;align-items:center;gap:8px;padding:0 9px 0 12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.pip .bar .nm{font-weight:600;font-size:12.5px;color:#f1f1f6;white-space:nowrap}
+.pip .bar .host{font-size:10px;color:#b4b4c6;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:5px;padding:0 6px;line-height:16px;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.pip .bar .host b{display:inline-block;width:8px;height:8px;border-radius:2px;background:#3b82f6}
+.pip .bar .host .tt{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:9px;color:#dcdcea}
+.pip .bar .sp{flex:1}
+.pip .bar .need{font-size:10px;font-weight:600;letter-spacing:.2px;padding:0 6px;line-height:16px;border-radius:5px;white-space:nowrap}
+.pip .bar .gl{width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;color:#6f6f84;border-radius:5px;flex:none}
+.pip .bar .gl svg{width:11px;height:11px}
+.pip .log{position:relative;height:134px;overflow:hidden}
+.pip .log::before{content:'';position:absolute;left:0;right:0;top:0;height:16px;background:linear-gradient(rgba(17,17,24,1),rgba(17,17,24,0));z-index:1}
+.pip .lines{position:absolute;left:12px;right:12px;bottom:12px}
+.ln{height:22px;line-height:22px;font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:11px;white-space:nowrap;display:flex;gap:7px;align-items:center;overflow:hidden}
+.ln .ts{color:#565669;flex:none}
+.ln .tool{color:#d2d2df;flex:none;min-width:30px}
+.ln .d{color:#4a4a5c;flex:none}
+.ln .arg{color:#9191a5;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ln.warn .tool{color:#fbbf24}.ln.warn .arg{color:#d9c48a}
+.ln.ok .tool,.ln.done .tool{color:#34d399}
+.ln.you .tool{color:#a5b4fc}.ln.you .arg{color:#c7cdf5}
+.ln.idle .arg{color:#6a6a7e}
+.pip .foot,.pip .act{position:absolute;left:0;right:0;top:168px;border-top:1px solid rgba(255,255,255,.08)}
+.pip .foot{height:32px;display:flex;align-items:center;gap:8px;padding:0 12px;font-size:11px;color:#808095;white-space:nowrap}
+.pip .foot i{display:inline-block;width:6px;height:6px;border-radius:50%;flex:none}
+.pip .foot .d{color:#4a4a5c}
+.pip .foot .mono{font-size:10.5px}
+.pip .act{padding:10px 12px}
+.row{display:flex;align-items:center;gap:8px;height:18px}
+.chip{font-size:10px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;padding:0 6px;line-height:18px;border-radius:5px;background:rgba(251,191,36,.16);color:#fbbf24;flex:none}
+.cmd{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:11.5px;color:#eaeaf2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pills{display:flex;gap:8px;margin-top:8px}
+.pill{height:30px;padding:0 13px;border-radius:8px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#e6e6ee;white-space:nowrap}
+.pill.pri{background:#6366f1;border-color:#7c7ef5;color:#fff}
+.pill.pri.em{background:#10b981;border-color:#34d399;color:#04231a}
+.pill .k{font-size:10px;color:rgba(255,255,255,.7);font-weight:500}
+.qh{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#f1f1f6;height:18px}
+.qh b{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:5px;background:rgba(16,185,129,.2);color:#34d399;font-size:11px}
+.qq{font-size:12px;color:#b1b1c3;height:16px;line-height:16px;margin-top:4px;white-space:nowrap}
+.opts{margin-top:6px}
+.opt{height:26px;display:flex;align-items:center;gap:9px;padding:0 8px;border-radius:7px;font-size:12px;color:#d6d6e0;white-space:nowrap}
+.opt i{display:inline-block;width:12px;height:12px;border-radius:50%;border:1.5px solid #5d5d72;flex:none}
+.opt.hov{background:rgba(255,255,255,.06)}
+.opt.sel{background:rgba(16,185,129,.16);color:#fff}
+.opt.sel i{border-color:#10b981;background:#10b981;box-shadow:inset 0 0 0 3px #13181a}
+.opt .rec{font-size:10px;color:#34d399;margin-left:auto}
+.sum{font-size:12px;line-height:16px;color:#c9c9d6;height:32px;white-space:nowrap}
+.sum b{color:#34d399;font-weight:600}
+.inp{height:30px;margin-top:8px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);padding:0 10px;display:flex;align-items:center;font-size:12px;color:#f1f1f6;position:relative;white-space:nowrap;overflow:hidden}
+.inp .ph{color:#62627a}
+.inp .cr{display:inline-block;width:1.5px;height:14px;background:#a5b4fc;margin-left:1px;vertical-align:-2px}
+.inp .ret{position:absolute;right:8px;top:7px;font-size:10px;color:#62627a;border:1px solid rgba(255,255,255,.12);border-radius:4px;padding:0 5px;line-height:14px}
+.sent{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;font-weight:600;color:#34d399;background:#15241e}
+/* subagent (60%) variant */
+.pip.sub{width:204px;border-radius:11px}
+.pip.sub .bar{height:24px;gap:6px;padding:0 6px 0 8px}
+.pip.sub .bar .nm{font-size:10.5px}
+.pip.sub .bar .host{font-size:9px;line-height:14px;padding:0 5px}
+.pip.sub .bar .need{font-size:9px;line-height:14px;padding:0 4px}
+.pip.sub .bar .gl{width:14px;height:14px}.pip.sub .bar .gl svg{width:9px;height:9px}
+.pip.sub .log{height:64px}
+.pip.sub .log::before{height:10px}
+.pip.sub .lines{left:8px;right:8px;bottom:8px}
+.pip.sub .ln{height:16px;line-height:16px;font-size:10px;gap:5px}
+.pip.sub .ln .tool{min-width:26px}
+.pip.sub .foot,.pip.sub .act{top:88px}
+.pip.sub .foot{height:20px;font-size:9.5px;padding:0 8px;gap:6px}
+.pip.sub .foot .mono{font-size:9px}
+.pip.sub .act{padding:8px}
+.pip.sub .row{height:14px;gap:6px}
+.pip.sub .cmd{font-size:10px}
+.pip.sub .chip{font-size:8.5px;line-height:14px;padding:0 4px}
+.pip.sub .pills{gap:6px;margin-top:6px}
+.pip.sub .pill{height:24px;padding:0 10px;font-size:10.5px;border-radius:6px}
+#conn{position:absolute;left:0;top:0;width:1440px;height:900px;z-index:2;overflow:visible}
+#hint{position:absolute;z-index:6;display:flex;align-items:center;gap:10px;padding:6px 10px;border-radius:9px;background:rgba(17,17,24,.92);border:1px solid rgba(255,255,255,.12);color:#b4b4c6;font-size:11px;white-space:nowrap;backdrop-filter:blur(14px)}
+#hint .g{display:inline-flex;align-items:center;gap:4px}
+#hint .kbd.on{background:#fff;color:#111;border-color:#fff}
+#hint .sep{width:1px;height:12px;background:rgba(255,255,255,.14)}
+</style>
+</head><body>
+<script>
+(function(){
+  // ---- timeline (ms) ----
+  const A ={s:6800, e:12400, space:10400, enter:12000};                 // perm: npm test
+  const B ={s:14200,e:17400, hov:16400, click:17000};                   // question: deploy target
+  const C ={s:20800,e:26900, space:22000, type:22500, enter:25400};     // finished + reply
+  const S ={spawn:28400, s:29300, e:32900, click:32600};                // subagent perm
+  const M ={s:29700, e:35900, space:30400, tab:31200, click:35600};     // portfolio finished (multi)
+  const DR={down:33400, s:33500, e:34600, dx:-170, dy:-6};              // drag portfolio
+  const ACT={perm:76, reply:92, question:142, ack:76, subperm:60};
+  const DOC={x:770,y:548};
+  const REPLY='great — also update the README test section';
+
+  const RECO=[
+    [0,'Read','CLAUDE.md'],
+    [900,'Grep','"ranker" src/'],
+    [2300,'Read','src/reco/ranker.py'],
+    [3500,'Grep','"def score_" src/'],
+    [4700,'Edit','src/reco/ranker.py  +12 −4'],
+    [5800,'Bash','pytest -q  ·  3 failed'],
+    [A.s,'Bash','⚠ npm test -- --coverage','warn'],
+    [A.enter+200,'✓','allowed  npm test -- --coverage','ok'],
+    [13600,'Bash','npm test  ·  3 failed, 41 passed'],
+    [15400,'Edit','tests/test_ranker.py  +9 −2'],
+    [17200,'Edit','src/reco/cache.py  +4 −1'],
+    [19200,'Bash','npm test -- --coverage  ·  84%'],
+    [C.s,'●','finished  ·  4 files changed','done'],
+    [C.enter+100,'you','great — also update the README…','you'],
+    [27200,'Read','README.md'],
+    [S.spawn,'Task','tests  ·  subagent spawned'],
+    [31400,'Edit','README.md  +18 −3'],
+    [34800,'Bash','npm run lint  ·  ✓'],
+    [38600,'Edit','docs/testing.md  +6 −0'],
+    [41000,'Bash','npm test  ·  53 passed'],
+  ];
+  const PORT=[
+    [0,'Read','package.json'],
+    [1300,'Bash','pnpm install  ·  ✓'],
+    [2700,'Read','astro.config.mjs'],
+    [4000,'Edit','src/pages/index.astro  +31 −8'],
+    [5300,'Bash','pnpm build'],
+    [7700,'Bash','build ✓  1.9s  ·  14 pages'],
+    [9600,'Read','wrangler.toml'],
+    [11600,'Grep','"deploy" package.json'],
+    [B.s,'?','Deploy target','warn'],
+    [B.click+300,'you','Cloudflare Pages','you'],
+    [18600,'Bash','wrangler pages deploy dist'],
+    [21200,'Bash','✓ deployed  preview-7f3a.pages.dev'],
+    [23200,'Edit','README.md  +4 −0'],
+    [25200,'Bash','git commit -m "preview deploy"'],
+    [27000,'Bash','git push origin feat/preview'],
+    [M.s,'●','finished  ·  preview live','done'],
+    [M.click+400,'·','idle  ·  waiting for you','idle'],
+  ];
+  const SUB=[
+    [S.spawn+150,'Bash','pytest --cov'],
+    [S.s,'Bash','⚠ rm -rf .coverage','warn'],
+    [S.click+150,'✓','allowed','ok'],
+    [33600,'Bash','rm -rf .coverage'],
+    [34900,'Bash','pytest --cov  ·  12 passed'],
+    [36600,'●','done  ·  reported to parent','done'],
+  ];
+  const HINTS=[
+    {from:9800, to:12700, groups:[['⌥','Space','focus'],['↩','','Allow'],['Esc','','back to doc']], press:[[A.space,0],[A.enter,1]]},
+    {from:21500,to:26300, groups:[['⌥','Space','focus'],['↩','','send'],['Esc','','back to doc']], press:[[C.space,0],[C.enter,1]]},
+    {from:30000,to:33100, groups:[['⌥','Space','focus'],['⌥','Tab','next lit window'],['↩','','Allow']], press:[[M.space,0],[M.tab,1]]},
+  ];
+  const CAPS=[
+    {from:2400, to:6400, text:"You're in Notion, fullscreen. Two sessions idle as PiPs in the corner."},
+    {from:6900, to:10300,text:"Claude needs permission. Its PiP lights up — your app keeps focus."},
+    {from:10500,to:13600,text:"⌥Space to focus, Enter to allow. Focus snaps back to your doc."},
+    {from:14400,to:18400,text:"Another session asks — emerald, VS Code. Same corner, one click."},
+    {from:21000,to:27200,text:"Type a follow-up without switching windows."},
+    {from:29800,to:33100,text:"Two at once: both PiPs light up. Resolve one, the other stays lit."},
+    {from:33300,to:36400,text:"Drag to park it anywhere."},
+    {from:37200,to:40300,text:"Back to work. Nothing to switch to."},
+  ];
+
+  const PIN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 3h6l-1 7 3 3H7l3-3z"/></svg>';
+  const X='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+
+  function pipHTML(){
+    return `
+<div class="pip sub" id="p-sub" style="z-index:1">
+  <div class="bar"><span class="sess-dot c-indigo" style="width:6px;height:6px"></span><span class="nm">tests</span><span class="host">subagent</span><span class="sp"></span><span class="need" id="sub-need">needs you</span><span class="gl">${X}</span></div>
+  <div class="log"><div class="lines" id="sub-lines"></div></div>
+  <div class="foot" id="sub-foot"><i style="background:#6366f1;width:5px;height:5px"></i><span id="sub-st">working</span><span class="d">·</span><span class="mono">of tm-reco-app</span></div>
+  <div class="act" id="sub-perm"><div class="row"><span class="chip">Bash</span><span class="cmd">rm -rf .coverage</span></div><div class="pills"><span class="pill pri" id="sub-allow">Allow</span><span class="pill">Deny</span></div></div>
+</div>
+<div class="pip" id="p-reco" style="z-index:3">
+  <div class="bar"><span class="sess-dot c-indigo"></span><span class="nm">tm-reco-app</span><span class="host"><span class="tt">›_</span>Ghostty</span><span class="sp"></span><span class="need" id="reco-need">needs you</span><span class="gl" id="reco-pin">${PIN}</span><span class="gl">${X}</span></div>
+  <div class="log"><div class="lines" id="reco-lines"></div></div>
+  <div class="foot" id="reco-foot"><i style="background:#6366f1"></i><span id="reco-st">working</span><span class="d">·</span><span class="mono">main</span><span class="d">·</span><span class="mono" id="reco-time"></span></div>
+  <div class="act" id="reco-perm"><div class="row"><span class="chip">Bash</span><span class="cmd">npm test -- --coverage</span></div><div class="pills"><span class="pill pri" id="reco-allow">Allow <span class="k">↩</span></span><span class="pill">Always for project</span><span class="pill">Deny</span></div></div>
+  <div class="act" id="reco-reply"><div class="sum"><b>Finished</b> · Fixed 3 failing tests · coverage 71% → 84%<br>4 files changed</div><div class="inp" id="reco-inp"><span id="reco-txt"></span><span class="ret">↩</span><div class="sent" id="reco-sent">✓ Sent → tm-reco-app</div></div></div>
+</div>
+<div class="pip" id="p-port" style="z-index:3">
+  <div class="bar"><span class="sess-dot c-emerald"></span><span class="nm">portfolio</span><span class="host"><b></b>VS Code</span><span class="sp"></span><span class="need" id="port-need">needs you</span><span class="gl" id="port-pin">${PIN}</span><span class="gl">${X}</span></div>
+  <div class="log"><div class="lines" id="port-lines"></div></div>
+  <div class="foot" id="port-foot"><i style="background:#10b981"></i><span id="port-st">working</span><span class="d">·</span><span class="mono">feat/preview</span><span class="d">·</span><span class="mono" id="port-time"></span></div>
+  <div class="act" id="port-q"><div class="qh"><b>?</b>Deploy target</div><div class="qq">Where should I deploy the preview?</div><div class="opts"><div class="opt" id="opt-cf"><i></i>Cloudflare Pages<span class="rec">recommended</span></div><div class="opt"><i></i>Vercel</div><div class="opt"><i></i>Skip deploy</div></div></div>
+  <div class="act" id="port-ack"><div class="sum" style="height:16px"><b>Finished</b> · preview live at preview-7f3a.pages.dev</div><div class="pills"><span class="pill pri em" id="port-gotit">Got it</span><span class="pill">Open in VS Code</span></div></div>
+</div>`;
+  }
+
+  let H, OFF={}, PATH=[], CLICKS=[], $={};
+  const q=id=>document.getElementById(id);
+
+  function litAmt(t,s,e){ if(t<s)return 0; if(t<e)return H.prog(t,s,420,'back'); return 1-H.prog(t,e,240); }
+  function actOp(t,s,e){ if(t<s)return 0; if(t<e)return H.prog(t,s+120,260); return 1-H.prog(t,e,180); }
+  function inRange(t,s,e){ return t>=s&&t<e; }
+  function pressAmt(t,pt){ return (t>=pt&&t<pt+160)?1-(t-pt)/160:0; }
+
+  function geom(t){
+    const midR=(A.e+C.s)/2, midP=(B.e+M.s)/2;
+    const rType=t<midR?'perm':'reply', rL=t<midR?litAmt(t,A.s,A.e):litAmt(t,C.s,C.e);
+    const pType=t<midP?'question':'ack', pL=t<midP?litAmt(t,B.s,B.e):litAmt(t,M.s,M.e);
+    const hR=168+H.lerp(32,ACT[rType],H.clamp(rL,0,1.12));
+    const hP=168+H.lerp(32,ACT[pType],H.clamp(pL,0,1.12));
+    const dp=H.ease.inOut(H.clamp((t-DR.s)/(DR.e-DR.s)));
+    const slotP = t<DR.down ? hP : 168+ACT.ack;           // column slot frozen once portfolio is parked
+    const port={x:1076+DR.dx*dp, y:876+DR.dy*dp-hP, h:hP, l:pL, type:pType, grab:(t>=DR.down&&t<DR.e+150)?1:0};
+    const reco={x:1076, y:876-slotP-12-hR, h:hR, l:rL, type:rType, grab:0};
+    const sp=H.prog(t,S.spawn,500,'back'); const sL=t<S.s?0:litAmt(t,S.s,S.e);
+    const hS=88+H.lerp(20,ACT.subperm,H.clamp(sL,0,1.12));
+    const dimX=reco.x-204+150, litX=reco.x-204-22;
+    const sub={x:H.lerp(reco.x+40,dimX,sp)+(litX-dimX)*H.clamp(sL,0,1.12), y:H.lerp(reco.y+8,reco.y-24,sp), h:hS, l:sL, vis:t>=S.spawn?1:0, type:'subperm', grab:0};
+    return {reco,port,sub};
+  }
+
+  function ts(ms,short){ const s=Math.floor(ms/1000)+12*3600+4*60; const hh=Math.floor(s/3600),mm=Math.floor(s%3600/60),ss=s%60; const p=n=>String(n).padStart(2,'0'); return short?`${p(mm)}:${p(ss)}`:`${p(hh)}:${p(mm)}:${p(ss)}`; }
+  function renderLog(el,entries,t,N,lh,short){
+    const vis=entries.filter(e=>e[0]<=t);
+    const last=vis.slice(-(N+1));
+    let p=1; if(vis.length){ p=H.prog(t,vis[vis.length-1][0],340); }
+    const scrolling = vis.length>N;
+    el.style.transform=`translateY(${(scrolling?lh:0)*(1-p)}px)`;
+    el.innerHTML=last.map((e,i)=>{
+      const isNew=i===last.length-1, isOld=scrolling&&i===0;
+      const op=isNew?p:(isOld?1-p:1);
+      return `<div class="ln ${e[3]||''}" style="opacity:${op.toFixed(3)}"><span class="ts">${ts(e[0],short)}</span><span class="tool">${e[1]}</span><span class="d">·</span><span class="arg">${e[2]}</span></div>`;
+    }).join('');
+  }
+
+  function stylePip(el,g,rgb,focus){
+    const l=H.clamp(g.l,0,1);
+    el.style.left=g.x+'px'; el.style.top=g.y+'px'; el.style.height=g.h+'px';
+    el.style.opacity=(g.vis==null?1:g.vis)*H.lerp(.85,1,l);
+    const co=H.lerp(.68,1,l); el.querySelector('.bar').style.opacity=co; el.querySelector('.log').style.opacity=co; el.__co=co;
+    el.style.transform=`translateY(${(-6*g.l).toFixed(2)}px) scale(${1+.015*g.grab})`;
+    const sh=[`0 ${8+10*l+6*g.grab}px ${24+26*l+12*g.grab}px rgba(0,0,0,${(.28+.22*l).toFixed(3)})`,`0 0 ${(30*l).toFixed(1)}px rgba(${rgb},${(.5*l).toFixed(3)})`];
+    if(focus) sh.unshift('0 0 0 1.5px #0b0b0f','0 0 0 3.5px rgba(255,255,255,.75)');
+    el.style.boxShadow=sh.join(',');
+    const [r,gg,b]=rgb.split(',').map(Number);
+    el.style.borderColor=`rgba(${Math.round(H.lerp(255,r,l))},${Math.round(H.lerp(255,gg,l))},${Math.round(H.lerp(255,b,l))},${H.lerp(.12,.9,l).toFixed(3)})`;
+    el.style.borderTopColor=`rgba(${rgb},${(.75+.25*l).toFixed(3)})`;
+  }
+  function pillPress(el,amt,focusRing){
+    el.style.transform=`scale(${1-.06*amt})`;
+    el.style.filter=`brightness(${1+.25*amt})`;
+    el.style.boxShadow=focusRing?'0 0 0 1.5px #11111a, 0 0 0 3px rgba(255,255,255,.7)':'none';
+  }
+
+  window.DRAFT={
+    title:'Picture-in-Picture Agents', duration:44000, bg:'docs',
+    markup:`<svg id="conn"><line id="cl" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="3 3"/><circle id="cc" r="2.5" fill="#6366f1"/></svg>${pipHTML()}<div id="hint"></div>`,
+    setup(h){
+      H=h;
+      ['p-sub','p-reco','p-port','sub-lines','reco-lines','port-lines','sub-foot','reco-foot','port-foot','sub-perm','reco-perm','reco-reply','port-q','port-ack','sub-need','reco-need','port-need','reco-allow','sub-allow','port-gotit','opt-cf','reco-inp','reco-txt','reco-sent','reco-time','port-time','reco-st','port-st','sub-st','port-pin','hint','cl','cc'].forEach(id=>$[id]=q(id));
+      $['reco-need'].style.cssText='background:rgba(99,102,241,.2);color:#a5b4fc';
+      $['sub-need'].style.cssText='background:rgba(99,102,241,.2);color:#a5b4fc';
+      $['port-need'].style.cssText='background:rgba(16,185,129,.2);color:#34d399';
+      // docs: make the trailing paragraph typeable
+      const dp=q('docs-typing'); dp.innerHTML='Open questions for Thursday<span id="dt"></span><span class="caret" id="dc"></span>';
+      // measure action targets relative to their pip
+      const rel=el=>{let x=0,y=0,n=el;while(n&&!(n.classList&&n.classList.contains('pip'))){x+=n.offsetLeft;y+=n.offsetTop;n=n.offsetParent}return{x:x+el.offsetWidth/2,y:y+el.offsetHeight/2}};
+      OFF.cf=rel($['opt-cf']); OFF.subAllow=rel($['sub-allow']); OFF.gotit=rel($['port-gotit']);
+      OFF.cf.x = 12+8+6+40; // click near the radio/label, not row center
+      // cursor path from geometry at the moment of each interaction
+      const gB=geom(B.click), gS=geom(S.click), gD=geom(DR.down), gG=geom(M.click);
+      const cf={x:gB.port.x+OFF.cf.x, y:gB.port.y+OFF.cf.y-6};
+      const sa={x:gS.sub.x+OFF.subAllow.x, y:gS.sub.y+OFF.subAllow.y-6};
+      const grab={x:gD.port.x+72, y:gD.port.y+17-6};
+      const drop={x:grab.x+DR.dx, y:grab.y+DR.dy};
+      const gi={x:gG.port.x+OFF.gotit.x, y:gG.port.y+OFF.gotit.y-6};
+      PATH=[{t:0,...DOC},{t:14900,...DOC},{t:16500,...cf},{t:17600,...cf},{t:18800,...DOC},
+            {t:31600,...DOC},{t:32400,...sa},{t:32900,...sa},{t:33300,...grab},{t:DR.s,...grab},{t:DR.e,...drop},
+            {t:35000,...drop},{t:35400,...gi},{t:36000,...gi},{t:37000,...DOC}];
+      CLICKS=[B.click,S.click,DR.down,M.click];
+    },
+    render(t,H){
+      const g=geom(t);
+      const fReco=inRange(t,A.space,A.e)||inRange(t,C.space,C.e);
+      const fSub=inRange(t,M.space,M.tab);
+      const fPort=inRange(t,M.tab,M.e);
+      const focusAny=fReco||fSub||fPort;
+
+      // ---- pips ----
+      stylePip($['p-reco'],g.reco,'99,102,241',fReco);
+      stylePip($['p-port'],g.port,'16,185,129',fPort);
+      stylePip($['p-sub'],g.sub,'99,102,241',fSub);
+
+      // logs
+      renderLog($['reco-lines'],RECO,t,5,22,false);
+      renderLog($['port-lines'],PORT,t,5,22,false);
+      renderLog($['sub-lines'],SUB,t,3,16,true);
+
+      // action areas / footers
+      const aA=actOp(t,A.s,A.e), aC=actOp(t,C.s,C.e), aB=actOp(t,B.s,B.e), aM=actOp(t,M.s,M.e), aS=actOp(t,S.s,S.e);
+      $['reco-perm'].style.opacity=aA; $['reco-reply'].style.opacity=aC; $['reco-foot'].style.opacity=(1-Math.max(aA,aC))*$['p-reco'].__co; $['reco-need'].style.opacity=Math.max(aA,aC);
+      $['port-q'].style.opacity=aB; $['port-ack'].style.opacity=aM; $['port-foot'].style.opacity=(1-Math.max(aB,aM))*$['p-port'].__co; $['port-need'].style.opacity=Math.max(aB,aM);
+      $['sub-perm'].style.opacity=aS; $['sub-foot'].style.opacity=(1-aS)*$['p-sub'].__co; $['sub-need'].style.opacity=aS;
+      const fmt=s=>`${String(Math.floor(s/60)).padStart(2,'0')}:${String(Math.floor(s%60)).padStart(2,'0')}`;
+      $['reco-time'].textContent=fmt(134+t/1000); $['port-time'].textContent=fmt(71+t/1000);
+      $['reco-st'].textContent=t>=41000?'idle':'working';
+      $['port-st'].textContent=t>=M.click?'idle':'working';
+      $['sub-st'].textContent=t>=36600?'done':'working';
+
+      // pills / options
+      pillPress($['reco-allow'],pressAmt(t,A.enter),fReco&&t<A.enter+80);
+      pillPress($['sub-allow'],pressAmt(t,S.click),fSub);
+      pillPress($['port-gotit'],pressAmt(t,M.click),fPort&&t<M.click+80);
+      $['opt-cf'].className='opt'+(t>=B.click?' sel':(t>=B.hov?' hov':''));
+
+      // reply input
+      const typed=H.typed(t,REPLY,C.type,24);
+      const inpFocus=inRange(t,C.space,C.enter);
+      $['reco-inp'].style.borderColor=inpFocus?'rgba(129,140,248,.9)':'rgba(255,255,255,.14)';
+      $['reco-txt'].innerHTML= typed? typed+(inpFocus&&H.caret(t)?'<span class="cr"></span>':'') : `<span class="ph">Reply to tm-reco-app…</span>${inpFocus&&H.caret(t)?'<span class="cr"></span>':''}`;
+      const sentOp=t>=C.enter+60?H.prog(t,C.enter+60,200):0;
+      $['reco-sent'].style.opacity=sentOp; $['reco-txt'].style.opacity=1-sentOp; $['reco-inp'].querySelector('.ret').style.opacity=1-sentOp;
+
+      // pin glyph lights once the portfolio PiP has been parked
+      const pinned=H.prog(t,DR.e-200,300);
+      $['port-pin'].style.color=`rgb(${Math.round(H.lerp(111,52,pinned))},${Math.round(H.lerp(111,211,pinned))},${Math.round(H.lerp(132,153,pinned))})`;
+      $['port-pin'].style.background=pinned>0?`rgba(16,185,129,${(.18*pinned).toFixed(3)})`:'transparent';
+
+      // connector subagent -> parent
+      const cy=g.sub.y+40, x1=g.sub.x+204, x2=g.reco.x;
+      $['cl'].setAttribute('x1',x1); $['cl'].setAttribute('x2',x2); $['cl'].setAttribute('y1',cy); $['cl'].setAttribute('y2',cy);
+      $['cc'].setAttribute('cx',x2-2); $['cc'].setAttribute('cy',cy);
+      $['cl'].style.opacity=$['cc'].style.opacity=g.sub.vis?H.lerp(.5,1,H.clamp(g.sub.l)):0;
+
+      // keyboard hint
+      const hint=HINTS.find(h=>t>=h.from&&t<=h.to); const he=$['hint'];
+      if(!hint){he.style.opacity=0}else{
+        const o=H.window(t,hint.from,hint.to,200,180); he.style.opacity=o;
+        he.innerHTML=hint.groups.map((gr,i)=>{const on=hint.press.some(([pt,gi])=>gi===i&&t>=pt&&t<pt+220);
+          return `<span class="g">${gr.slice(0,2).filter(Boolean).map(k=>`<span class="kbd${on?' on':''}">${k}</span>`).join('')}<span>${gr[2]}</span></span>`}).join('<span class="sep"></span>');
+        const top=Math.min(g.reco.y, g.sub.vis?g.sub.y:1e9);
+        he.style.right='24px'; he.style.top=(top-44+(1-o)*6)+'px';
+      }
+
+      // ---- docs liveness ----
+      const t1=H.typed(t,' — who owns the billing cutover?',2600,15), t2=H.typed(t,' Referral flag: default off?',37400,15);
+      q('dt').textContent=t1+t2;
+      q('dc').style.opacity=(!focusAny&&H.caret(t))?1:0;
+
+      // ---- cursor / caption / cards ----
+      if(t<2000||t>40800) H.cursor(t,[],[]); else H.cursor(t,PATH,CLICKS);
+      H.caption(t,CAPS);
+      if(t<2300) H.titleCard(t,{from:0,to:2200,kicker:'BECKON · DRAFT 5',title:'Picture-in-Picture Agents',sub:'Every session is a tiny floating window — glanceable when quiet, actionable when it needs you.'});
+      else H.titleCard(t,{from:40500,to:44000,title:'Picture-in-Picture Agents',sub:'Always glanceable · Acts where it lives · Movable & pinnable',note:'Mockup — not a real app yet'});
+    }
+  };
+})();
+</script>
+<script src="../render/harness.js"></script>
+</body></html>

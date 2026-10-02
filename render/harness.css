@@ -1,0 +1,74 @@
+/* ---- shared harness styles ---- */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1440px;height:900px;overflow:hidden;background:#000;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;-webkit-font-smoothing:antialiased;color:#111}
+#stage{position:relative;width:1440px;height:900px;overflow:hidden}
+#bg{position:absolute;inset:0}
+#overlay{position:absolute;inset:0;pointer-events:none}
+.mono{font-family:"SF Mono",ui-monospace,Menlo,monospace}
+
+/* cursor */
+#cursor{position:absolute;left:0;top:0;width:22px;height:30px;z-index:1000;pointer-events:none;transform:translate(-3px,-2px);filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))}
+#cursor .ring{position:absolute;left:-14px;top:-12px;width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,.9);opacity:0;transform:scale(.4)}
+
+/* captions & title cards */
+#caption{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);z-index:900;background:rgba(0,0,0,.72);color:#fff;font-size:17px;font-weight:500;letter-spacing:.1px;padding:10px 18px;border-radius:12px;backdrop-filter:blur(14px);opacity:0;white-space:nowrap}
+#card{position:absolute;inset:0;z-index:950;background:#0b0b0f;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;opacity:0;pointer-events:none}
+#card .k{font-size:14px;letter-spacing:3px;text-transform:uppercase;color:#8e8ea0;margin-bottom:18px}
+#card .t{font-size:54px;font-weight:700;letter-spacing:-1px}
+#card .s{font-size:20px;color:#b3b3c2;margin-top:14px;max-width:760px;text-align:center;line-height:1.45}
+#card .n{position:absolute;bottom:40px;font-size:13px;color:#5e5e70;letter-spacing:1px}
+
+/* ---- fake fullscreen app backgrounds ---- */
+/* FIGMA-like */
+.bg-figma{background:#1e1e1e;width:100%;height:100%;position:relative;overflow:hidden}
+.bg-figma .canvas{position:absolute;inset:0;background:#e5e5e5;background-image:radial-gradient(#d2d2d2 1px,transparent 1px);background-size:24px 24px}
+.bg-figma .frame{position:absolute;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.12);border-radius:6px}
+.bg-figma .frame .lbl{position:absolute;top:-22px;left:0;font-size:12px;color:#555}
+.bg-figma .tb{position:absolute;left:50%;transform:translateX(-50%);top:14px;height:48px;width:420px;background:#2c2c2c;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.35);display:flex;align-items:center;gap:6px;padding:0 10px}
+.bg-figma .tb i{display:block;width:30px;height:30px;border-radius:8px;background:#3a3a3a}
+.bg-figma .tb i.on{background:#0d99ff}
+.bg-figma .panel{position:absolute;top:14px;bottom:14px;width:260px;background:#2c2c2c;border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.35);padding:14px;color:#ccc;font-size:12px}
+.bg-figma .panel.l{left:14px}.bg-figma .panel.r{right:14px}
+.bg-figma .panel .row{height:24px;display:flex;align-items:center;gap:8px;color:#bbb;padding-left:8px}
+.bg-figma .panel .row b{display:inline-block;width:10px;height:10px;border:1.5px solid #888;border-radius:2px}
+.bg-figma .panel .h{color:#fff;font-weight:600;margin:8px 0 6px 0;font-size:12px}
+.bg-figma .panel .sw{height:28px;border-radius:6px;background:#3a3a3a;margin-top:6px}
+.btnmock{height:36px;border-radius:8px;background:#111;color:#fff;font-size:13px;display:inline-flex;align-items:center;padding:0 16px}
+.txt{height:10px;border-radius:5px;background:#e3e3e3;margin-top:10px}
+
+/* DOCS-like (Notion / Google Docs) */
+.bg-docs{background:#fff;width:100%;height:100%;position:relative;overflow:hidden}
+.bg-docs .side{position:absolute;left:0;top:0;bottom:0;width:240px;background:#f7f7f5;border-right:1px solid #ececea;padding:18px 12px;font-size:13px;color:#555}
+.bg-docs .side .it{padding:6px 8px;border-radius:6px;margin:2px 0}
+.bg-docs .side .it.on{background:#ececea;color:#111;font-weight:500}
+.bg-docs .page{position:absolute;left:240px;right:0;top:0;bottom:0;overflow:hidden}
+.bg-docs .doc{width:760px;margin:70px auto 0 auto;color:#222}
+.bg-docs .doc h1{font-size:38px;font-weight:700;letter-spacing:-.5px;margin-bottom:24px}
+.bg-docs .doc p{font-size:16px;line-height:1.7;color:#333;margin-bottom:14px}
+.bg-docs .doc h2{font-size:22px;margin:26px 0 10px 0}
+.bg-docs .doc li{font-size:16px;line-height:1.7;margin-left:22px;color:#333}
+.bg-docs .caret{display:inline-block;width:2px;height:20px;background:#111;vertical-align:-4px;margin-left:1px}
+
+/* BROWSER-like */
+.bg-browser{background:#f5f5f7;width:100%;height:100%;position:relative;overflow:hidden}
+.bg-browser .chrome{height:52px;background:#ececef;border-bottom:1px solid #d9d9de;display:flex;align-items:center;justify-content:center}
+.bg-browser .url{width:560px;height:32px;border-radius:9px;background:#fff;box-shadow:inset 0 0 0 1px #d9d9de;font-size:13px;color:#555;display:flex;align-items:center;justify-content:center;gap:6px}
+.bg-browser .content{position:absolute;top:52px;left:0;right:0;bottom:0;background:#fff;overflow:hidden}
+.bg-browser .art{width:720px;margin:60px auto;color:#222}
+.bg-browser .art h1{font-size:40px;line-height:1.15;letter-spacing:-.8px;margin-bottom:18px;font-weight:700}
+.bg-browser .art .meta{font-size:14px;color:#777;margin-bottom:28px}
+.bg-browser .art p{font-size:18px;line-height:1.7;margin-bottom:18px;color:#333}
+.bg-browser .art .img{height:300px;border-radius:12px;background:linear-gradient(135deg,#dfe7ff,#f7e3ff);margin:10px 0 24px}
+
+/* VIDEO-like (fullscreen video) */
+.bg-video{background:#000;width:100%;height:100%;position:relative;overflow:hidden}
+.bg-video .scene{position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,#2b3b6b 0%,#0e1428 45%,#05070f 100%)}
+.bg-video .bar{position:absolute;left:60px;right:60px;bottom:40px;height:4px;background:rgba(255,255,255,.25);border-radius:2px}
+.bg-video .bar i{display:block;height:100%;width:38%;background:#fff;border-radius:2px}
+.bg-video .ttl{position:absolute;left:60px;bottom:64px;color:#fff;font-size:15px;opacity:.85}
+
+/* ---- shared overlay vocabulary ---- */
+.sess-dot{display:inline-block;width:8px;height:8px;border-radius:50%}
+.c-indigo{background:#6366f1}.c-amber{background:#f59e0b}.c-emerald{background:#10b981}.c-rose{background:#f43f5e}.c-sky{background:#0ea5e9}
+.kbd{display:inline-block;font-family:-apple-system,system-ui;font-size:11px;padding:1px 6px;border-radius:5px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#cfcfe0;line-height:16px}
+.kbd.dark{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.14);color:#444}

@@ -1,0 +1,22 @@
+# dependencies
+node_modules/
+
+# build output
+app/build/
+dist/
+
+# rendered video frames (videos/*.mp4 and render/*-sheet.jpg are kept)
+render/frames/
+
+# macOS
+.DS_Store
+.AppleDouble
+._*
+
+# release tooling scratch (never commit keys or certificates)
+*.p12
+*.p8
+*.cer
+*.mobileprovision
+videos/00-all-drafts.mp4
+beckon-test/

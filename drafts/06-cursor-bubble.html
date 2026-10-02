@@ -1,0 +1,252 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Beckon — Draft 6 — Cursor Bubble</title>
+<link rel="stylesheet" href="../render/harness.css">
+<style>
+/* ---- Draft 6: Cursor Bubble (light glass) ---- */
+.glass{background:rgba(255,255,255,.88);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);border:1px solid rgba(0,0,0,.12);color:#111}
+.bubble{position:absolute;width:260px;height:30px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.14),0 1px 2px rgba(0,0,0,.08);display:flex;align-items:center;gap:6px;padding:0 5px 0 9px;font-size:11.5px;letter-spacing:-.1px;white-space:nowrap;opacity:0}
+.bubble .sd{width:8px;height:8px;border-radius:50%;flex:none}
+.bubble .nm{font-weight:600;flex:none}
+.bubble .nd{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;color:#333}
+.bubble .act{display:flex;gap:3px;flex:none}
+.bubble .act i{display:flex;align-items:center;justify-content:center;width:19px;height:20px;border-radius:6px;background:rgba(0,0,0,.05);font-style:normal;font-size:11px;color:#333;font-weight:600}
+.bubble .act i.ok{color:#047857;background:rgba(16,185,129,.14)}
+.bubble .act i.no{color:#b91c1c;background:rgba(244,63,94,.12)}
+.tail{position:absolute;width:10px;height:10px;top:-6px;background:rgba(255,255,255,.96);border-left:1px solid rgba(0,0,0,.12);border-top:1px solid rgba(0,0,0,.12);transform:rotate(45deg)}
+.tail.bot{top:auto;bottom:-6px;transform:rotate(225deg)}
+.badge{position:absolute;top:-8px;right:-8px;min-width:17px;height:17px;border-radius:9px;background:#111;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.25);opacity:0}
+.pdot{position:absolute;width:14px;height:14px;border-radius:50%;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.28);opacity:0}
+.pdot .badge{top:-9px;right:-11px;min-width:15px;height:15px;font-size:9px}
+.card{position:absolute;width:380px;border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.18),0 1px 2px rgba(0,0,0,.08);padding:14px 16px;font-size:13px;opacity:0}
+.card .hd{display:flex;align-items:center;gap:7px;height:20px;white-space:nowrap}
+.card .hd .sd{width:8px;height:8px;border-radius:50%;flex:none}
+.card .hd b{font-weight:600;font-size:13px}
+.card .host{font-size:10px;color:#555;background:rgba(0,0,0,.06);border-radius:5px;padding:0 6px;line-height:16px;height:16px;display:inline-flex;align-items:center;gap:4px}
+.card .host i{width:8px;height:8px;border-radius:2px;background:#0078d4;display:inline-block}
+.card .host i.gh{background:#222;border-radius:2px}
+.card .kind{margin-left:auto;font-size:11px;color:#666}
+.card .chip{margin-top:10px;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.06);border-radius:8px;padding:0 10px;height:32px;display:flex;align-items:center;font-size:12px;color:#111;gap:8px}
+.card .chip .dollar{color:#999}
+.card .cwd{margin-top:8px;font-size:11px;color:#666;height:16px;line-height:16px}
+.card .btns{margin-top:12px;display:flex;gap:8px}
+.card .btn{height:30px;border-radius:8px;background:rgba(0,0,0,.06);display:inline-flex;align-items:center;gap:7px;padding:0 12px;font-size:12.5px;font-weight:600;color:#222}
+.card .btn.pri{background:#111;color:#fff}
+.card .btn.pri .kbd{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22);color:#eee}
+.card .btn.hov{background:rgba(0,0,0,.11)}
+.card .btn.pri.hov{background:#000;box-shadow:0 0 0 3px rgba(99,102,241,.25)}
+.card .q{margin-top:10px;font-size:13px;color:#222;height:18px;line-height:18px}
+.card .opts{margin-top:10px;display:flex;flex-direction:column;gap:2px}
+.card .opt{height:32px;display:flex;align-items:center;gap:9px;padding:0 8px;border-radius:8px;font-size:13px;color:#222}
+.card .opt i{width:12px;height:12px;border-radius:50%;border:1.5px solid rgba(0,0,0,.35);display:inline-block;flex:none}
+.card .opt.hov{background:rgba(0,0,0,.05)}
+.card .opt.sel i{border-color:#10b981;background:#10b981;box-shadow:inset 0 0 0 2.5px #fff}
+.card .opt em{font-style:normal;font-size:10px;color:#047857;background:rgba(16,185,129,.14);border-radius:5px;padding:0 6px;line-height:16px;margin-left:2px}
+.card .sum{margin-top:10px;font-size:13px;line-height:18px;color:#222;height:36px}
+.card .field{margin-top:12px;height:34px;border-radius:9px;border:1px solid rgba(0,0,0,.14);background:rgba(255,255,255,.7);display:flex;align-items:center;padding:0 10px;font-size:13px;position:relative;white-space:nowrap;overflow:hidden}
+.card .field.focus{border-color:rgba(99,102,241,.7);box-shadow:0 0 0 3px rgba(99,102,241,.18)}
+.card .field .ph{color:#999}
+.card .field .tc{display:inline-block;width:1.5px;height:16px;background:#111;margin-left:1px;vertical-align:-3px}
+.card .field .send{position:absolute;right:8px;top:7px}
+.card .field .sent{color:#047857;font-weight:600;display:none;align-items:center;gap:6px}
+.card .field .sent b{display:inline-flex;width:16px;height:16px;border-radius:50%;background:#10b981;color:#fff;font-size:10px;align-items:center;justify-content:center}
+.card .seg{display:flex;gap:3px;background:rgba(0,0,0,.05);border-radius:8px;padding:2px;height:24px;margin-bottom:10px}
+.card .sg{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:6px;font-size:11px;font-weight:600;color:#666;height:20px}
+.card .sg .sd{width:7px;height:7px;border-radius:50%}
+.card .sg.on{background:#fff;color:#111;box-shadow:0 1px 2px rgba(0,0,0,.1)}
+.card .sg.done{opacity:.45}
+.card .body{position:relative}
+.hint{position:absolute;background:rgba(20,20,24,.86);color:#fff;font-size:11px;font-weight:500;padding:4px 9px;border-radius:8px;display:flex;gap:6px;align-items:center;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.2);opacity:0}
+/* figma "live" selection */
+.sel{position:absolute;border:1.5px solid #0d99ff;pointer-events:none}
+.sel i{position:absolute;width:8px;height:8px;background:#fff;border:1.5px solid #0d99ff}
+.sel .dim{position:absolute;left:50%;bottom:-26px;transform:translateX(-50%);background:#0d99ff;color:#fff;font-size:11px;font-weight:500;padding:2px 6px;border-radius:4px;white-space:nowrap}
+</style>
+</head><body>
+<script>
+(function(){
+const EV={
+  A:{col:'#6366f1',name:'tm-reco-app',need:'Run npm test?',acts:'perm'},
+  B:{col:'#10b981',name:'portfolio',need:'Deploy where?',acts:'q'},
+  C:{col:'#6366f1',name:'tm-reco-app',need:'Fixed 3 tests',acts:'done'},
+  D:{col:'#6366f1',name:'tests',need:'Delete .coverage?',acts:'perm'},
+  E:{col:'#10b981',name:'portfolio',need:'Done · preview deployed',acts:'done'}
+};
+// ---- timeline (ms) ----
+const T={
+  title:[0,2200],
+  A_in:6500, A_dot:11500, A_hint:14000, A_card:14400, A_click:16100, A_pop:16160,
+  B_in:18500, B_pin:19400, B_card:20300, B_click:21700, B_pop:21760,
+  C_in:23000, C_pin:24000, C_card:24600, C_click:25400, C_type:25600, C_enter:28700, C_pop:29700,
+  D_in:30500, E_in:31300, M_hint:32300, M_card:32700, M_click:34200, M_swap:34250, M_esc:35500, M_close:35700,
+  end:[40300,44000]
+};
+const DUR=44000;
+const PATH=[
+  {t:0,x:560,y:420},{t:2600,x:560,y:420},{t:3500,x:640,y:500},{t:4500,x:618,y:560},{t:5600,x:700,y:480},{t:6400,x:690,y:470},{t:7000,x:690,y:470},
+  {t:8300,x:820,y:520},{t:9500,x:1010,y:600},{t:10700,x:1210,y:330},{t:11500,x:1216,y:340},{t:12500,x:1000,y:520},{t:13300,x:880,y:470},{t:13900,x:930,y:540},
+  {t:15300,x:930,y:540},{t:16000,x:1006,y:686},
+  {t:16700,x:1006,y:686},{t:17600,x:700,y:430},
+  {t:19400,x:700,y:430},{t:20000,x:790,y:470},
+  {t:20700,x:790,y:470},{t:21400,x:770,y:541},
+  {t:22100,x:770,y:541},{t:22900,x:620,y:600},
+  {t:24000,x:620,y:600},{t:24450,x:700,y:641},
+  {t:24900,x:700,y:641},{t:25300,x:760,y:731},
+  {t:29800,x:760,y:731},{t:31000,x:880,y:380},
+  {t:33200,x:880,y:380},{t:34000,x:956,y:560},
+  {t:36300,x:956,y:560},{t:37300,x:640,y:520},{t:38400,x:700,y:600},{t:39600,x:690,y:590},{t:44000,x:690,y:590}
+];
+const CLICKS=[T.A_click,T.B_click,T.C_click,T.M_click];
+const CAPS=[
+  {from:2400,to:6200,text:'You’re in Figma, fullscreen. Two Claude Code sessions run in the background.'},
+  {from:6700,to:11200,text:'Claude needs permission. A bubble lands at your cursor — your app keeps focus.'},
+  {from:11700,to:13900,text:'Ignore it for 5 s and it shrinks to a dot that rides along with the cursor.'},
+  {from:14500,to:17400,text:'⌥Space expands it in place. Answer inline — Esc or Enter returns focus to your app.'},
+  {from:18700,to:22500,text:'Another session, another color. Hover the bubble to expand; pick an option.'},
+  {from:23300,to:29600,text:'Type a follow-up without switching windows.'},
+  {from:30800,to:35400,text:'Two at once: the bubble counts them and the card gets a switcher. Resolve one — the other stays.'},
+  {from:36300,to:39700,text:'Back to work. The one you skipped rides along as a dot — nothing to switch to.'}
+];
+const hostGh='<span class="host"><i class="gh"></i>Ghostty</span>';
+const hostVs='<span class="host"><i></i>VS Code</span>';
+const permBody=(cmd,cwd)=>`<div class="chip mono"><span class="dollar">$</span>${cmd}</div><div class="cwd">${cwd}</div>
+  <div class="btns"><div class="btn pri" data-b="allow">Allow <span class="kbd">↵</span></div><div class="btn">Always</div><div class="btn">Deny <span class="kbd dark">esc</span></div></div>`;
+const doneBody=(sum,who)=>`<div class="sum">${sum}</div>
+  <div class="field"><span class="ph">Reply to ${who}…</span><span class="typed"></span><span class="tc"></span><span class="send kbd dark">↵ send</span><span class="sent"><b>✓</b>Sent → ${who}</span></div>`;
+
+window.DRAFT={
+  title:'Cursor Bubble', duration:DUR, bg:'figma',
+  markup:`
+  <div class="sel" style="left:380px;top:150px;width:360px;height:640px"><i style="left:-5px;top:-5px"></i><i style="right:-5px;top:-5px"></i><i style="left:-5px;bottom:-5px"></i><i style="right:-5px;bottom:-5px"></i><div class="dim">360 × 640</div></div>
+  <div id="bub" class="bubble glass"><div class="tail"></div><span class="sd"></span><span class="nm"></span><span class="nd"></span><span class="act"></span><div class="badge">2</div></div>
+  <div id="pdot" class="pdot"><div class="badge">2</div></div>
+  <div id="hint" class="hint"></div>
+  <div id="cardA" class="card glass"><div class="tail"></div>
+    <div class="hd"><span class="sd" style="background:#6366f1"></span><b>tm-reco-app</b>${hostGh}<span class="kind">Permission · Bash</span></div>
+    ${permBody('npm test -- --coverage','~/Developer/tm-reco-app')}
+  </div>
+  <div id="cardB" class="card glass"><div class="tail"></div>
+    <div class="hd"><span class="sd" style="background:#10b981"></span><b>portfolio</b>${hostVs}<span class="kind">Question · Deploy target</span></div>
+    <div class="q">Where should I deploy the preview?</div>
+    <div class="opts"><div class="opt" data-o="1"><i></i>Cloudflare Pages <em>recommended</em></div><div class="opt"><i></i>Vercel</div><div class="opt"><i></i>Skip deploy</div></div>
+  </div>
+  <div id="cardC" class="card glass"><div class="tail"></div>
+    <div class="hd"><span class="sd" style="background:#6366f1"></span><b>tm-reco-app</b>${hostGh}<span class="kind">Finished</span></div>
+    ${doneBody('Fixed 3 failing tests · coverage 71% → 84% · 4 files changed','tm-reco-app')}
+  </div>
+  <div id="cardM" class="card glass"><div class="tail"></div>
+    <div class="seg"><div class="sg on" id="sgD"><span class="sd" style="background:#6366f1"></span>tm-reco-app › tests</div><div class="sg" id="sgE"><span class="sd" style="background:#10b981"></span>portfolio</div></div>
+    <div class="body" id="bodyD">
+      <div class="hd"><span class="sd" style="background:#6366f1"></span><b>tm-reco-app › tests</b>${hostGh}<span class="kind">Permission · Bash</span></div>
+      ${permBody('rm -rf .coverage','~/Developer/tm-reco-app')}
+    </div>
+    <div class="body" id="bodyE" style="display:none">
+      <div class="hd"><span class="sd" style="background:#10b981"></span><b>portfolio</b>${hostVs}<span class="kind">Finished</span></div>
+      ${doneBody('Preview deployed · 12 pages · build 1.8 s · 0 warnings','portfolio')}
+    </div>
+  </div>`,
+  setup(H){
+    this.$={bub:document.getElementById('bub'),dot:document.getElementById('pdot'),hint:document.getElementById('hint'),
+      A:document.getElementById('cardA'),B:document.getElementById('cardB'),C:document.getElementById('cardC'),M:document.getElementById('cardM'),
+      bodyD:document.getElementById('bodyD'),bodyE:document.getElementById('bodyE'),sgD:document.getElementById('sgD'),sgE:document.getElementById('sgE')};
+  },
+  render(t,H){
+    const $=this.$; const {clamp,lerp,prog}=H;
+    // ---- helpers ----
+    const cpos=(tt)=>{let x=PATH[0].x,y=PATH[0].y;for(let i=0;i<PATH.length-1;i++){const a=PATH[i],b=PATH[i+1];if(tt>=b.t){x=b.x;y=b.y;continue}if(tt>=a.t){const p=H.ease.inOut(clamp((tt-a.t)/(b.t-a.t)));x=lerp(a.x,b.x,p);y=lerp(a.y,b.y,p);break}}return {x,y}};
+    // anchor for a w×h element attached to cursor sampled at tt-120 (lag); flips near right/bottom edges
+    const anchor=(tt,w,h,off=24)=>{const c=cpos(tt-120);let x=c.x+off,y=c.y+off;let tailX=14,bot=false;
+      const f=H.ease.inOut(clamp((c.x-(1424-w-off-40))/40)); x=lerp(x,c.x-off-w,f); tailX=lerp(14,w-24,f);
+      if(y+h>884){y=c.y-off-h;bot=true} return {x,y,tailX,bot}};
+    const appear=(t0,dur=380)=>({a:clamp((t-t0)/150),s:lerp(.5,1,prog(t,t0,dur,'back'))});
+    const pop=(t0)=>{const p=clamp((t-t0)/220);return {a:p<.5?1:1-(p-.5)*2,s:p<.35?lerp(1,1.08,p/.35):lerp(1.08,0,(p-.35)/.65)}};
+    // ---- state ----
+    let bub=null,dot=null,card=null,hint=null,countBadge=0;
+    const placeBubbleFollow=(ev,tt)=>({ev,...anchor(tt,260,30)});
+    // Episode A
+    if(t>=T.A_in&&t<T.A_pop+230){
+      if(t<T.A_dot){bub={...placeBubbleFollow('A',t),...appear(T.A_in)}}
+      else if(t<T.A_card){const p=prog(t,T.A_dot,320,'inOut');
+        bub={...placeBubbleFollow('A',t),a:1-clamp(p*2),s:lerp(1,.4,p)};
+        dot={ev:'A',...anchor(t,14,14,16),a:clamp((p-.25)/.5),s:lerp(.3,1,prog(t,T.A_dot+90,360,'back'))}}
+      else{const an=anchor(T.A_card,380,156);
+        if(t<T.A_pop){dot={ev:'A',...anchor(t,14,14,16),a:1-clamp((t-T.A_card)/120),s:1};card={ev:'A',...an,...appear(T.A_card,420)}}
+        else card={ev:'A',...an,...pop(T.A_pop)}}
+      if(t>=T.A_hint&&t<T.A_hint+900){const an=anchor(T.A_card,380,156);hint={x:an.x,y:an.y-38,o:H.window(t,T.A_hint,T.A_hint+900,150,200),html:'<span class="kbd">⌥</span><span class="kbd">Space</span>'}}
+    }
+    // Episode B
+    if(t>=T.B_in&&t<T.B_pop+230){
+      const pinned=anchor(T.B_pin,260,30);
+      if(t<T.B_card){bub={ev:'B',...(t<T.B_pin?anchor(t,260,30):pinned),...appear(T.B_in)}}
+      else{const an=anchor(T.B_pin,380,188);
+        if(t<T.B_pop){bub={ev:'B',...pinned,a:1-clamp((t-T.B_card)/120),s:1};card={ev:'B',...an,...appear(T.B_card,420)}}
+        else card={ev:'B',...an,...pop(T.B_pop)}}
+    }
+    // Episode C
+    if(t>=T.C_in&&t<T.C_pop+230){
+      const pinned=anchor(T.C_pin,260,30);
+      if(t<T.C_card){bub={ev:'C',...(t<T.C_pin?anchor(t,260,30):pinned),...appear(T.C_in)}}
+      else{const an=anchor(T.C_pin,380,140);
+        if(t<T.C_pop){bub={ev:'C',...pinned,a:1-clamp((t-T.C_card)/120),s:1};card={ev:'C',...an,...appear(T.C_card,420)}}
+        else card={ev:'C',...an,...pop(T.C_pop)}}
+    }
+    // Episode M (D + E)
+    if(t>=T.D_in){
+      countBadge=(t>=T.E_in&&t<T.M_swap)?2:0;
+      if(t<T.M_card){bub={...placeBubbleFollow('D',t),...appear(T.D_in)}}
+      else if(t<T.M_close+220){const an=anchor(T.M_card,380,190);
+        if(t<T.M_close){bub={...placeBubbleFollow('D',t),a:1-clamp((t-T.M_card)/120),s:1};card={ev:'M',...an,...appear(T.M_card,420)}}
+        else{const p=clamp((t-T.M_close)/200);card={ev:'M',...an,a:1-p,s:lerp(1,.9,H.ease.out(p))}}
+      }
+      if(t>=T.M_close+60){dot={ev:'E',...anchor(t,14,14,16),a:clamp((t-T.M_close-60)/150),s:lerp(.3,1,prog(t,T.M_close+60,380,'back'))}}
+      if(t>=T.M_hint&&t<T.M_hint+900){const an=anchor(T.M_card,380,190);hint={x:an.x,y:an.y-38,o:H.window(t,T.M_hint,T.M_hint+900,150,200),html:'<span class="kbd">⌥</span><span class="kbd">Space</span>'}}
+      if(t>=T.M_esc&&t<T.M_esc+800){const an=anchor(T.M_card,380,190);hint={x:an.x,y:an.y-38,o:H.window(t,T.M_esc,T.M_esc+800,150,200),html:'<span class="kbd">esc</span>'}}
+    }
+    // ---- apply: bubble ----
+    const B=$.bub;
+    if(bub&&bub.a>0){const e=EV[bub.ev];B.style.opacity=bub.a;B.style.left=bub.x+'px';B.style.top=bub.y+'px';
+      B.style.transformOrigin=`${bub.tailX+5}px ${bub.bot?'100%':'0px'}`;B.style.transform=`scale(${bub.s})`;
+      B.querySelector('.sd').style.background=e.col;B.querySelector('.nm').textContent=e.name;B.querySelector('.nd').textContent=e.need;
+      const acts=e.acts==='perm'?'<i class="ok">✓</i><i class="no">✕</i><i>⋯</i>':e.acts==='done'?'<i>↩</i><i>⋯</i>':'<i>3 ›</i><i>⋯</i>';
+      const A=B.querySelector('.act');if(A.innerHTML!==acts)A.innerHTML=acts;
+      const tl=B.querySelector('.tail');tl.style.left=bub.tailX+'px';tl.className='tail'+(bub.bot?' bot':'');
+      const bd=B.querySelector('.badge');const bp=countBadge?prog(t,T.E_in,380,'back'):0;bd.style.opacity=bp>0?1:0;bd.style.transform=`scale(${bp})`;
+    } else B.style.opacity=0;
+    // ---- apply: dot ----
+    const Dd=$.dot;
+    if(dot&&dot.a>0){Dd.style.opacity=dot.a;Dd.style.left=dot.x+'px';Dd.style.top=dot.y+'px';Dd.style.transform=`scale(${dot.s})`;Dd.style.background=EV[dot.ev].col;
+      const bd=Dd.querySelector('.badge');bd.style.opacity=countBadge?1:0;bd.style.transform='scale(1)';
+    } else Dd.style.opacity=0;
+    // ---- apply: cards ----
+    for(const k of ['A','B','C','M']){const c=$[k];
+      if(card&&card.ev===k&&card.a>0){c.style.opacity=card.a;c.style.left=card.x+'px';c.style.top=card.y+'px';c.style.transformOrigin=`${card.tailX+5}px 0px`;c.style.transform=`scale(${card.s})`;
+        c.querySelector('.tail').style.left=card.tailX+'px'}
+      else c.style.opacity=0;
+    }
+    if(card&&card.ev==='A'){const b=$.A.querySelector('[data-b=allow]');b.classList.toggle('hov',t>=15950);b.style.transform=(t>=T.A_click&&t<T.A_click+120)?'scale(.96)':'none'}
+    if(card&&card.ev==='B'){const o=$.B.querySelector('[data-o="1"]');o.classList.toggle('hov',t>=21300);o.classList.toggle('sel',t>=T.B_click)}
+    if(card&&card.ev==='C'){const f=$.C.querySelector('.field');const focused=t>=T.C_click;f.classList.toggle('focus',focused&&t<T.C_enter);
+      const txt=H.typed(t,'great — also update the README test section',T.C_type,22);const sent=t>=T.C_enter;
+      f.querySelector('.ph').style.display=(txt||sent)?'none':'inline';f.querySelector('.typed').textContent=sent?'':txt;
+      f.querySelector('.tc').style.visibility=(focused&&!sent&&H.caret(t))?'visible':'hidden';f.querySelector('.tc').style.display=sent?'none':'inline-block';
+      f.querySelector('.send').style.display=sent?'none':'inline-block';f.querySelector('.send').style.opacity=txt?1:.55;
+      f.querySelector('.sent').style.display=sent?'inline-flex':'none';f.querySelector('.sent').style.opacity=clamp((t-T.C_enter)/150)}
+    if(card&&card.ev==='M'){const sw=t>=T.M_swap;const p=prog(t,T.M_swap,260,'out');
+      $.bodyD.style.display=sw?'none':'block';$.bodyE.style.display=sw?'block':'none';$.bodyE.style.opacity=p;$.bodyE.style.transform=`translateY(${(1-p)*6}px)`;
+      $.sgD.className='sg'+(sw?' done':' on');$.sgE.className='sg'+(sw?' on':'');
+      if(sw)$.sgD.innerHTML='<span class="sd" style="background:#6366f1"></span>tests ✓';else $.sgD.innerHTML='<span class="sd" style="background:#6366f1"></span>tm-reco-app › tests';
+      const b=$.bodyD.querySelector('[data-b=allow]');b.classList.toggle('hov',t>=33950);b.style.transform=(t>=T.M_click&&t<T.M_click+120)?'scale(.96)':'none';
+      const f=$.bodyE.querySelector('.field');f.classList.remove('focus');f.querySelector('.tc').style.visibility='hidden';f.querySelector('.send').style.opacity=.55}
+    // ---- hint ----
+    if(hint){$.hint.style.opacity=hint.o;$.hint.style.left=hint.x+'px';$.hint.style.top=(hint.y-(1-hint.o)*6)+'px';if($.hint.innerHTML!==hint.html)$.hint.innerHTML=hint.html}else $.hint.style.opacity=0;
+    // ---- cursor, caption, cards ----
+    H.cursor(t,PATH,CLICKS);
+    if(t<T.title[1]-200||t>T.end[0]+300)document.getElementById('cursor').style.opacity=0;
+    H.caption(t,CAPS);
+    if(t<T.title[1]+400){H.titleCard(Math.max(t,250),{from:T.title[0],to:T.title[1],kicker:'BECKON · DRAFT 6',title:'Cursor Bubble',sub:'Alerts land as a speech bubble pinned to your cursor. Zero eye travel.'});if(t<250)document.getElementById('card').style.opacity=1}
+    else H.titleCard(t,{from:T.end[0],to:T.end[1],title:'Cursor Bubble',sub:'Zero eye travel · Shrinks to a dot when ignored · Expands in place',note:'Mockup — not a real app yet'});
+  }
+};
+})();
+</script>
+<script src="../render/harness.js"></script>
+</body></html>

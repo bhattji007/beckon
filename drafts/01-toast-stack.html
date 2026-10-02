@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Beckon — Draft 1 — Toast Stack</title>
+<link rel="stylesheet" href="../render/harness.css">
+<style>
+/* ---- Toast Stack overlay ---- */
+.toast{position:absolute;right:16px;width:380px;border-radius:14px;color:#f2f2f7;
+  background:rgba(28,28,32,.86);-webkit-backdrop-filter:blur(30px) saturate(1.5);backdrop-filter:blur(30px) saturate(1.5);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 1px 2px rgba(0,0,0,.28),0 14px 36px rgba(0,0,0,.32);
+  overflow:hidden;transform-origin:top center;visibility:hidden;opacity:0;--accent:#6366f1}
+.toast.focused{box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 0 0 2px #6366f1,0 0 0 6px rgba(99,102,241,.22),0 14px 36px rgba(0,0,0,.32)}
+.toast .stripe{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent)}
+.toast .inner{padding:12px 14px 12px 18px}
+.hdr{display:flex;align-items:center;gap:8px;height:18px;white-space:nowrap}
+.hdr .name{font-size:13px;font-weight:600;color:#fff;letter-spacing:-.1px}
+.hdr .name i{font-style:normal;color:#8e8e9a;font-weight:500}
+.hdr .host{font-size:11px;height:18px;padding:0 6px;border-radius:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);color:#c2c2ce;display:inline-flex;align-items:center;gap:5px;line-height:1}
+.hdr .host .g{font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:10px;font-weight:700;color:#e4e4ea}
+.hdr .host .g.vsc{display:inline-block;width:10px;height:10px;border-radius:2px;background:#2f8fe8;position:relative}
+.hdr .host .g.vsc::after{content:"";position:absolute;left:3px;top:2px;width:4px;height:6px;border-left:2px solid #fff;transform:skewX(-20deg)}
+.hdr .time{margin-left:auto;font-size:11px;color:#8e8e9a}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.9px;text-transform:uppercase;color:#8e8e9a;margin-top:10px}
+.eyebrow.ok{color:#34d399}
+.body{margin-top:5px;font-size:13px;line-height:1.4;color:#e8e8ee}
+.chip{display:inline-flex;align-items:center;gap:7px;max-width:100%;margin-top:7px;padding:4px 9px;border-radius:7px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);font-family:"SF Mono",ui-monospace,Menlo,monospace;font-size:12px;color:#fff;white-space:nowrap}
+.chip .tool{color:#a5a7ff;font-weight:700}
+.chip .sep{color:#5e5e6e}
+.acts{margin-top:11px}
+.seg{display:flex;gap:6px}
+.btn{flex:1;height:30px;border-radius:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);font-size:12.5px;font-weight:500;color:#f2f2f7;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}
+.btn.wide{flex:1.35}
+.btn.primary{background:rgba(99,102,241,.32);border-color:rgba(99,102,241,.55)}
+.toast.focused .btn.primary{background:#6366f1;border-color:#7a7cf5;box-shadow:0 0 0 3px rgba(99,102,241,.28)}
+.btn .k{font-size:10px;line-height:14px;padding:0 4px;border-radius:4px;background:rgba(0,0,0,.28);color:rgba(255,255,255,.72);opacity:0}
+.toast.focused .btn .k{opacity:1}
+.btn.pressed{transform:scale(.96);background:#8486ff;border-color:#9a9cff}
+.opts{display:flex;flex-direction:column;gap:4px}
+.opt{height:30px;border-radius:8px;padding:0 10px 0 8px;display:flex;align-items:center;gap:9px;font-size:12.5px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);color:#f2f2f7}
+.opt .n{width:17px;height:17px;border-radius:5px;background:rgba(255,255,255,.1);font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;color:#c2c2ce;flex:none}
+.opt .rec{margin-left:auto;font-size:10px;color:#8e8e9a}
+.opt.hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.18)}
+.opt.sel{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt.sel .n{background:rgba(0,0,0,.25);color:#fff}
+.opt.sel .rec{color:rgba(255,255,255,.8)}
+.row{display:flex;gap:6px;align-items:center}
+.field{flex:1;height:32px;border-radius:8px;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;padding:0 10px;font-size:12.5px;color:#fff;white-space:nowrap;overflow:hidden;min-width:0}
+.field .ph{color:#7c7c88}
+.field .tx{flex:1;min-width:0;overflow:hidden;direction:rtl;text-align:left;white-space:nowrap}
+.field .tx span{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.field .fcaret{display:inline-block;width:1.5px;height:15px;background:#fff;margin-left:1px;vertical-align:-3px;flex:none}
+.field .ret{margin-left:auto;font-size:11px;color:#6e6e7a;padding-left:8px;flex:none}
+.toast.focused .field{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.26)}
+.btn.done{flex:none;width:68px}
+.sent{display:none;flex:1;height:32px;align-items:center;gap:7px;font-size:12.5px;color:#34d399;font-weight:500}
+.sent b{display:inline-flex;width:16px;height:16px;border-radius:50%;background:#34d399;color:#0b0b0f;font-size:10px;align-items:center;justify-content:center}
+.toast.issent .sent{display:flex}.toast.issent .field{display:none}
+.sum{position:absolute;left:18px;right:14px;top:36px;font-size:12px;color:#b9b9c6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum .mono{color:#dcdce4}
+/* footer row under the stack: pill + hints */
+.foot{position:absolute;right:16px;width:380px;display:flex;flex-direction:column;align-items:flex-end;gap:6px;white-space:nowrap}
+.pill,.hints{height:24px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:12px;background:rgba(28,28,32,.86);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 4px 14px rgba(0,0,0,.22);font-size:11px;color:#c2c2ce}
+.pill{align-self:center;color:#fff;font-weight:500}
+.pill.off{display:none}
+.pill i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#f59e0b}
+.hints .kbd{font-size:10px;line-height:15px;padding:0 5px}
+.hints .d{color:#5e5e6e;margin:0 1px}
+/* keystroke visualizer */
+.keyflash{position:absolute;right:28px;bottom:36px;display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:12px;background:rgba(28,28,32,.86);-webkit-backdrop-filter:blur(30px);backdrop-filter:blur(30px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 8px 24px rgba(0,0,0,.3);opacity:0}
+.keyflash .kbd{font-size:14px;line-height:22px;padding:1px 9px;border-radius:7px;color:#fff;background:rgba(255,255,255,.14)}
+.keyflash .plus{color:#8e8e9a;font-size:12px}
+</style>
+</head>
+<body>
+<script src="../render/harness.js"></script>
+<script>
+const CARDS = {
+  a:{sess:'tm-reco-app',host:'Ghostty',color:'#6366f1',kind:'perm',hints:'perm',
+     sum:'Permission · <span class="mono">npm test -- --coverage</span>',
+     body:`<div class="eyebrow">Permission request</div><div class="body">Claude wants to run a command.<br><span class="chip"><span class="tool">Bash</span><span class="sep">›</span>npm test -- --coverage</span></div>`,
+     acts:`<div class="seg"><div class="btn primary" data-b="allow">Allow <span class="k">⌥1</span></div><div class="btn wide">Always for project <span class="k">⌥2</span></div><div class="btn">Deny <span class="k">⌥3</span></div></div>`},
+  b:{sess:'portfolio',host:'VS Code',color:'#10b981',kind:'question',hints:'question',
+     sum:'Question · Deploy target',
+     body:`<div class="eyebrow">Deploy target</div><div class="body">Where should I deploy the preview?</div>`,
+     acts:`<div class="opts"><div class="opt" data-o="1"><span class="n">1</span>Cloudflare Pages<span class="rec">recommended</span></div><div class="opt"><span class="n">2</span>Vercel</div><div class="opt"><span class="n">3</span>Skip deploy</div></div>`},
+  c:{sess:'tm-reco-app',host:'Ghostty',color:'#6366f1',kind:'finished',hints:'finished',
+     sum:'Finished · 4 files changed',
+     body:`<div class="eyebrow ok">Finished</div><div class="body">Fixed 3 failing tests · coverage 71% → 84% · 4 files changed</div>`,
+     acts:`<div class="row"><div class="field"><span class="ph">Reply to tm-reco-app…</span><span class="ret">⏎</span></div><div class="sent"><b>✓</b>Sent → tm-reco-app</div><div class="btn done">Done <span class="k">⌥1</span></div></div>`},
+  d1:{sess:'portfolio',host:'VS Code',color:'#10b981',kind:'finished',hints:'finished',
+     sum:'Finished · preview deployed to Cloudflare Pages',
+     body:`<div class="eyebrow ok">Finished</div><div class="body">Preview deployed to Cloudflare Pages · 14 pages · LCP 1.2 s</div>`,
+     acts:`<div class="row"><div class="field"><span class="ph">Reply to portfolio…</span><span class="ret">⏎</span></div><div class="sent"><b>✓</b>Sent → portfolio</div><div class="btn done" data-b="done">Done <span class="k">⌥1</span></div></div>`},
+  d2:{sess:'tm-reco-app <i>› tests</i>',host:'Ghostty',color:'#6366f1',kind:'perm',hints:'perm',
+     sum:'Permission · <span class="mono">rm -rf .coverage</span>',
+     body:`<div class="eyebrow">Permission request · subagent</div><div class="body">Claude wants to run a command.<br><span class="chip"><span class="tool">Bash</span><span class="sep">›</span>rm -rf .coverage</span></div>`,
+     acts:`<div class="seg"><div class="btn primary" data-b="allow">Allow <span class="k">⌥1</span></div><div class="btn wide">Always for project <span class="k">⌥2</span></div><div class="btn">Deny <span class="k">⌥3</span></div></div>`},
+};
+const HINTS = {
+  idle:'<span class="kbd">⌥Space</span> focus <span class="d">·</span> click to answer',
+  perm:'<span class="kbd">⌥1</span> Allow <span class="d">·</span> <span class="kbd">⌥2</span> Always <span class="d">·</span> <span class="kbd">⌥3</span> Deny <span class="d">·</span> <span class="kbd">Esc</span> back',
+  question:'<span class="kbd">⌥1</span>–<span class="kbd">⌥3</span> choose <span class="d">·</span> <span class="kbd">Esc</span> back',
+  finished:'<span class="kbd">⏎</span> send <span class="d">·</span> <span class="kbd">⌥1</span> Done <span class="d">·</span> <span class="kbd">Esc</span> back',
+};
+function cardHTML(id,c){
+  const glyph = c.host==='VS Code' ? '<span class="g vsc"></span>' : '<span class="g">›_</span>';
+  return `<div class="toast" id="t-${id}" style="--accent:${c.color}"><div class="stripe"></div><div class="inner">
+    <div class="hdr"><span class="name">${c.sess}</span><span class="host">${glyph}${c.host}</span><span class="time">now</span></div>
+    <div class="sum">${c.sum}</div>
+    <div class="main">${c.body}<div class="acts">${c.acts}</div></div>
+  </div></div>`;
+}
+
+// ---- timeline (ms) ----
+const T = {
+  title:[0,2200],
+  A:{enter:5600, focus:9600, press:11200, exit:11600},
+  B:{enter:13400, hoverFrom:15500, click:16200, exit:16800},
+  C:{enter:19200, click:20900, type:21200, send:24400, exit:25700},
+  D1:{enter:27400, exit:34600, focus:33000, press:34400},
+  D2:{enter:28100, focus:31500, press:32600, exit:32800},
+  hover:[29600,30600],
+  end:[39400,43400],
+};
+const TEXT_C = 'great — also update the README test section';
+const DOC_X = 760, DOC_Y = 560;
+
+window.DRAFT = {
+  title:'Toast Stack', duration:43400, bg:'docs',
+  markup: Object.entries(CARDS).map(([id,c])=>cardHTML(id,c)).join('') +
+    `<div class="foot" id="foot"><div class="pill" id="pill"><i></i><span id="pillTxt">2 waiting</span></div><div class="hints" id="hints"></div></div>
+     <div class="keyflash" id="keyflash"></div>`,
+  setup(H){
+    this.$ = id=>document.getElementById(id);
+    this.docP = document.getElementById('docs-typing');
+  },
+  render(t,H){
+    const $=this.$;
+    const ids=['a','b','c','d1','d2'];
+    const el={}; ids.forEach(i=>el[i]=$('t-'+i));
+
+    // ---- per-card state: enter progress, alive (exit) factor, expand e, focused, extras ----
+    const life=(enter,exit)=>{
+      const en=H.prog(t,enter,480,'back');            // springy enter (may overshoot >1)
+      const ex=1-H.prog(t,exit,200,'out');            // 1 alive -> 0 gone
+      const vis=(t>=enter&&t<exit+200)?1:0;
+      return {en,ex,vis};
+    };
+    const S={
+      a:life(T.A.enter,T.A.exit), b:life(T.B.enter,T.B.exit), c:life(T.C.enter,T.C.exit),
+      d1:life(T.D1.enter,T.D1.exit), d2:life(T.D2.enter,T.D2.exit)
+    };
+    // expand factor (1 full / 0 compact); only d1 ever compacts
+    const E={a:1,b:1,c:1,d2:1};
+    E.d1=H.clamp((1-H.prog(t,T.D2.enter,350))+(H.prog(t,T.hover[0],300)-H.prog(t,T.hover[1],300))+H.prog(t,T.D2.exit+60,380));
+    // focus
+    let focused=null;
+    if(t>=T.A.focus&&t<T.A.exit)focused='a';
+    else if(t>=T.B.click&&t<T.B.exit)focused='b';
+    else if(t>=T.C.click&&t<T.C.exit)focused='c';
+    else if(t>=T.D2.focus&&t<T.D2.exit)focused='d2';
+    else if(t>=T.D1.focus&&t<T.D1.exit)focused='d1';
+
+    // ---- measure heights (full & compact) ----
+    const H_={};
+    ids.forEach(i=>{
+      const c=el[i]; c.style.height='auto';
+      const main=c.querySelector('.main'), sum=c.querySelector('.sum');
+      main.style.display='block'; sum.style.display='none';
+      const full=c.offsetHeight;
+      main.style.display='none'; sum.style.display='block';
+      const compact=sum.offsetTop+sum.offsetHeight+12;
+      H_[i]={full,compact};
+      main.style.display='block'; sum.style.display='block';
+    });
+
+    // ---- stack layout: newest on top ----
+    const enterT={a:T.A.enter,b:T.B.enter,c:T.C.enter,d1:T.D1.enter,d2:T.D2.enter};
+    const order=ids.filter(i=>S[i].vis).sort((x,y)=>enterT[y]-enterT[x]);
+    let y=14; let count=0;
+    order.forEach(i=>{
+      const s=S[i], e=E[i], c=el[i];
+      const h=H.lerp(H_[i].compact,H_[i].full,e);
+      const push=H.clamp(s.en)*s.ex;         // how much vertical room this card takes
+      c.style.visibility='visible';
+      c.style.top=y+'px';
+      c.style.height=h+'px';
+      const scale=(0.9+0.1*s.en)*(H.lerp(.955,1,e))*(1-.04*(1-s.ex));
+      const dy=-18*(1-s.en)-8*(1-s.ex);
+      c.style.transform=`translateY(${dy}px) scale(${scale})`;
+      c.style.opacity=H.clamp(s.en*1.6)*s.ex*H.lerp(.94,1,e);
+      c.querySelector('.main').style.opacity=e;
+      c.querySelector('.sum').style.opacity=1-e;
+      c.classList.toggle('focused',focused===i);
+      y+=(h+10)*push; count++;
+    });
+    ids.forEach(i=>{ if(!S[i].vis){el[i].style.visibility='hidden';el[i].style.opacity=0;el[i].classList.remove('focused')} });
+
+    // ---- per-card interaction states ----
+    // A allow pressed
+    el.a.querySelector('[data-b=allow]').classList.toggle('pressed',t>=T.A.press&&t<T.A.exit+200);
+    el.d2.querySelector('[data-b=allow]').classList.toggle('pressed',t>=T.D2.press&&t<T.D2.exit+200);
+    el.d1.querySelector('[data-b=done]').classList.toggle('pressed',t>=T.D1.press&&t<T.D1.exit+200);
+    // B option hover / selected
+    const optB=el.b.querySelector('[data-o="1"]');
+    optB.classList.toggle('hover',t>=T.B.hoverFrom&&t<T.B.click);
+    optB.classList.toggle('sel',t>=T.B.click);
+    // C field typing / sent
+    const fieldC=el.c.querySelector('.field');
+    const typed=H.typed(t,TEXT_C,T.C.type,24);
+    const typing=t>=T.C.click&&t<T.C.send;
+    fieldC.innerHTML = typing
+      ? `<span class="tx"><span>${typed}${H.caret(t)?'<i class="fcaret"></i>':'<i class="fcaret" style="opacity:0"></i>'}</span></span><span class="ret">⏎</span>`
+      : `<span class="ph">Reply to tm-reco-app…</span><span class="ret">⏎</span>`;
+    el.c.classList.toggle('issent',t>=T.C.send);
+
+    // ---- footer: pill + hints ----
+    const foot=$('foot'), pill=$('pill'), hints=$('hints');
+    foot.style.top=(y+2)+'px';
+    const nWait=order.filter(i=>S[i].ex>.5&&S[i].en>.3).length;
+    const pillOn=nWait>=2 ? H.window(t,T.D2.enter+150,T.D2.exit+60,200,160) : 0;
+    pill.style.opacity=pillOn; pill.style.transform=`translateY(${(1-pillOn)*4}px)`;
+    $('pillTxt').textContent=`${Math.max(nWait,2)} waiting`;
+    let hintsOn=0;
+    const top=order[0];
+    if(focused){
+      hints.innerHTML=HINTS[CARDS[focused].hints];
+      const win={a:[T.A.focus,T.A.exit],b:[T.B.click,T.B.exit],c:[T.C.click,T.C.exit],d2:[T.D2.focus,T.D2.exit],d1:[T.D1.focus,T.D1.exit]}[focused];
+      hintsOn=H.window(t,win[0],win[1],180,120);
+    }else if(top){
+      // idle affordance under the top card: how to grab focus
+      hints.innerHTML=HINTS.idle;
+      const idleWin={a:[T.A.enter+500,T.A.focus-40],b:[T.B.enter+500,T.B.click-40],c:[T.C.enter+500,T.C.click-40],d2:[T.D2.enter+500,T.D2.focus-40]}[top];
+      if(idleWin)hintsOn=H.window(t,idleWin[0],idleWin[1],220,120)*.9;
+    }
+    pill.classList.toggle('off',pillOn<=0);
+    hints.style.opacity=hintsOn; hints.style.transform=`translateY(${(1-hintsOn)*4}px)`;
+    foot.style.opacity=Math.max(pillOn,hintsOn)>0?1:0;
+
+    // ---- keystroke visualizer ----
+    const keys=[
+      {at:T.A.focus-220,html:'<span class="kbd">⌥</span><span class="plus">+</span><span class="kbd">Space</span>'},
+      {at:T.A.press,html:'<span class="kbd">⌥</span><span class="plus">+</span><span class="kbd">1</span>'},
+      {at:T.C.send,html:'<span class="kbd">⏎</span>'},
+      {at:T.D2.focus-220,html:'<span class="kbd">⌥</span><span class="plus">+</span><span class="kbd">Space</span>'},
+      {at:T.D2.press,html:'<span class="kbd">⌥</span><span class="plus">+</span><span class="kbd">1</span>'},
+      {at:T.D1.press,html:'<span class="kbd">⌥</span><span class="plus">+</span><span class="kbd">1</span>'},
+    ];
+    const kf=$('keyflash'); let ko=0;
+    for(const k of keys){ if(t>=k.at&&t<k.at+900){kf.innerHTML=k.html; ko=H.window(t,k.at,k.at+900,90,220);} }
+    kf.style.opacity=ko; kf.style.transform=`translateY(${(1-ko)*6}px) scale(${.96+.04*ko})`;
+
+    // ---- docs background: live caret + typing while the user is "working" ----
+    const docTyped1=H.typed(t,' — can we A/B the survey removal?',2600,16);
+    const docTyped2=t>=35400?H.typed(t,' Pricing page copy owner?',35600,16):'';
+    const caretOn=!focused&&H.caret(t);
+    this.docP.innerHTML=`Open questions for Thursday${docTyped1}${docTyped2}<span class="caret" style="opacity:${caretOn?1:0}"></span>`;
+
+    // ---- cursor ----
+    const center=(card,sel,topOverride)=>{
+      const c=el[card], e=c.querySelector(sel);
+      const top=topOverride!=null?topOverride:parseFloat(c.style.top)||14;
+      return {x:1440-16-380+e.offsetLeft+e.offsetWidth/2, y:top+e.offsetTop+e.offsetHeight/2};
+    };
+    const pB=center('b','[data-o="1"]',14);
+    const pC=center('c','.row',14);
+    pC.x-=110;
+    const d1Top=14+H_.d2.full+10;
+    const pD1={x:1440-16-190, y:d1Top+H_.d1.compact/2};
+    const path=[
+      {t:0,x:DOC_X,y:DOC_Y},{t:3000,x:DOC_X,y:DOC_Y},{t:5000,x:DOC_X+30,y:DOC_Y+12},
+      {t:14600,x:DOC_X+30,y:DOC_Y+12},{t:15600,x:pB.x,y:pB.y},
+      {t:17200,x:pB.x,y:pB.y},{t:18200,x:DOC_X,y:DOC_Y},
+      {t:20000,x:DOC_X,y:DOC_Y},{t:20800,x:pC.x,y:pC.y},
+      {t:25900,x:pC.x,y:pC.y},{t:26800,x:DOC_X+20,y:DOC_Y+6},
+      {t:28800,x:DOC_X+20,y:DOC_Y+6},{t:29600,x:pD1.x,y:pD1.y},
+      {t:30600,x:pD1.x,y:pD1.y},{t:31200,x:DOC_X,y:DOC_Y},
+      {t:37000,x:DOC_X,y:DOC_Y},{t:38500,x:DOC_X+40,y:DOC_Y+10},
+    ];
+    H.cursor(t,path,[T.B.click,T.C.click]);
+
+    // ---- captions ----
+    H.caption(t,[
+      {from:2400,to:5400,text:"You're in your docs, fullscreen. Two Claude Code sessions run in the background."},
+      {from:5900,to:9200,text:'Claude needs permission. The overlay appears — your app keeps focus.'},
+      {from:9600,to:12900,text:'Answer inline. Esc or Enter returns focus to your app.'},
+      {from:13700,to:18600,text:'A question from a different session — portfolio, in VS Code.'},
+      {from:19600,to:26400,text:'Type a follow-up without switching windows.'},
+      {from:27800,to:31200,text:'Two events land together. They stack — newest on top, older folds to one line.'},
+      {from:31400,to:34800,text:'Resolve the top one; the next steps up and waits.'},
+      {from:35400,to:39000,text:'Back to work. Nothing to switch to.'},
+    ]);
+
+    // ---- title / end cards ----
+    if(t<=T.title[1]+400) H.titleCard(t,{from:T.title[0],to:T.title[1],kicker:'BECKON · DRAFT 1',title:'Toast Stack',sub:'Notification-style cards in the corner — fully actionable, stacking as events arrive.'});
+    else H.titleCard(t,{from:T.end[0],to:T.end[1],title:'Toast Stack',sub:'Familiar macOS shape · Inline answers · Stacks gracefully',note:'Mockup — not a real app yet'});
+  }
+};
+</script>
+</body>
+</html>

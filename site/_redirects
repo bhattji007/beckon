@@ -1,0 +1,4 @@
+# Stable "latest" links used by the Download button. release.sh regenerates this file in dist/
+# on every release; copy dist/_redirects here so the two lines below point at the newest version.
+/latest/Beckon.dmg  /releases/Beckon-0.9.0.dmg  302
+/latest/Beckon.zip  /releases/Beckon-0.9.0.zip  302
