@@ -43,30 +43,25 @@ Then deploy (see below). Check `https://beckon.shubham.club/appcast.json` shows 
 that `https://beckon.shubham.club/latest/Beckon.dmg` downloads the new dmg.
 
 
-## Hosting on Cloudflare Pages
+## Hosting: Cloudflare Worker with static assets
 
-Works out of the box; `_redirects` and `_headers` are Cloudflare Pages conventions (Netlify uses the same files).
-
-**Option A, git-connected (simplest).** Cloudflare dashboard → Workers & Pages → Create → Pages →
-Connect to Git → pick this repo. Settings: framework preset *None*, build command *empty*, build
-output directory `site`. Every push to the production branch redeploys. Add the custom domain
-`beckon.shubham.club` under the project's *Custom domains* tab; Cloudflare adds the CNAME if the
-zone `shubham.club` is on Cloudflare.
-
-**Option B, direct upload (keeps binaries out of git).**
+Live at https://beckon.shubham.club, served the same way as jageshwar.shubham.club: a Cloudflare Worker whose
+only job is to serve this directory as static assets. `wrangler.jsonc` names the worker (`beckon-site`) and the
+custom domain; wrangler creates the DNS record and certificate on first deploy. `.assetsignore` keeps the config
+and these notes out of the upload. `_redirects` and `_headers` are honoured by the assets runtime.
 
 ```sh
-npm i -g wrangler
-wrangler login
-wrangler pages project create beckon --production-branch main    # once
-wrangler pages deploy site --project-name beckon
+cd site
+npx wrangler deploy
 ```
 
-Preview locally with the same redirects and headers Pages applies: `npx wrangler pages dev site`.
+Preview locally with the same redirects and headers: `npx wrangler dev` from `site/`.
 
-Limits that matter: 25 MB per file, 20,000 files per deployment. Beckon's dmg is ~1 MB, so `releases/`
-can hold many versions. If the dmg ever grows past 25 MB, host `releases/` on R2 (or the GitHub
-release assets) and change `BECKON_DOWNLOAD_BASE` + `_redirects` to point there.
+Limits that matter: 25 MB per file. Beckon's dmg is ~2 MB, so `releases/` can hold many versions. If the dmg
+ever grows past 25 MB, host `releases/` on R2 (or the GitHub release assets) and change `BECKON_DOWNLOAD_BASE`
++ `_redirects` to point there.
 
-Any other static host (GitHub Pages, Netlify, S3 + CloudFront, nginx) works too; only the `/latest/*`
-redirects need an equivalent (or point the button at the versioned file directly).
+A Cloudflare Pages project (`beckon`, https://beckon-6bk.pages.dev) also exists from the first deploy and can be
+refreshed with `npx wrangler@3 pages deploy site --project-name beckon`; the custom domain lives on the Worker.
+Any other static host (GitHub Pages, Netlify, S3 + CloudFront, nginx) works too; only the `/latest/*` redirects
+need an equivalent (or point the button at the versioned file directly).

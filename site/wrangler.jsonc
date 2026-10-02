@@ -1,0 +1,17 @@
+{
+  // Cloudflare Worker serving the site as static assets, the same way jageshwar.shubham.club is hosted.
+  // Deploy from this directory: npx wrangler deploy
+  // _redirects and _headers at this level are honoured by the assets runtime (Download button, appcast caching).
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "beckon-site",
+  "compatibility_date": "2025-10-01",
+  "assets": {
+    "directory": "./",
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "none"
+  },
+  "routes": [
+    { "pattern": "beckon.shubham.club", "custom_domain": true }
+  ],
+  "observability": { "enabled": true }
+}
