@@ -4,9 +4,12 @@
   // _redirects and _headers at this level are honoured by the assets runtime (Download button, appcast caching).
   "$schema": "https://unpkg.com/wrangler/config-schema.json",
   "name": "beckon-site",
+  "main": "./worker.js",
   "compatibility_date": "2025-10-01",
   "assets": {
     "directory": "./",
+    "binding": "ASSETS",
+    "run_worker_first": true,
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "none"
   },

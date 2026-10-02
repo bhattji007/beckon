@@ -3,3 +3,4 @@ wrangler.jsonc
 README.md
 HANDOFF.md
 .wrangler/
+worker.js
