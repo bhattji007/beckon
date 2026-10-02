@@ -1,14 +1,23 @@
 # beckon.shubham.club
 
 Static landing page for Beckon. No build step, no framework: `index.html`, `style.css`, `appcast.json`,
-`_redirects`, `_headers`, plus the binaries under `releases/`.
+`_redirects`, `_headers`, the media (`demo.mp4`, `demo-poster.jpg`, `og.png`, `assets/`), plus the binaries
+under `releases/`.
+
+`assets/shots/*.webp` are real overlay snapshots taken from the running app (`BECKON_SNAPSHOT_DIR=/dir open
+--env BECKON_SNAPSHOT_DIR=/dir /Applications/Beckon.app`, then fake hooks through `~/.beckon/bin/beckon-hook`;
+see `CONTRIBUTING.md`). Retake them after an overlay redesign. `assets/fonts/` holds the two self-hosted
+typefaces (Familjen Grotesk, JetBrains Mono; OFL, the same two the app bundles). `demo.mp4` is currently a transcode of
+`videos/01-toast-stack.mp4` (the first design); drop the real screen recording over it (and a new `demo-poster.jpg`).
 
 ## Layout as served
 
 | Path | What | Where it comes from |
 |---|---|---|
 | `/` | landing page | `index.html`, `style.css` |
-| `/demo.mp4`, `/demo-poster.jpg` | hero video + poster | drop your screen recording here (not generated) |
+| `/demo.mp4`, `/demo-poster.jpg` | demo video + poster | screen recording (today: transcode of `videos/01-toast-stack.mp4`) |
+| `/og.png` | social preview card | rendered once with Playwright; regenerate if the headline changes |
+| `/assets/shots/*.webp` | real overlay snapshots used on the page | `BECKON_SNAPSHOT_DIR` + fake hooks, converted with `cwebp` |
 | `/appcast.json` | update feed read by the app (`BeckonUpdateFeedURL`) | `dist/appcast.json` from `release/release.sh` |
 | `/releases/Beckon-<version>.dmg` / `.zip` | the downloads | `dist/Beckon-<version>.*` |
 | `/latest/Beckon.dmg`, `/latest/Beckon.zip` | stable links the Download button uses (302 to the newest version) | `_redirects`, regenerated as `dist/_redirects` |
@@ -33,8 +42,6 @@ git push
 Then deploy (see below). Check `https://beckon.shubham.club/appcast.json` shows the new version and
 that `https://beckon.shubham.club/latest/Beckon.dmg` downloads the new dmg.
 
-Before the first publish, replace the `https://github.com/bhattji007/beckon` placeholder links in
-`index.html` with the real repository URL.
 
 ## Hosting on Cloudflare Pages
 
@@ -54,6 +61,8 @@ wrangler login
 wrangler pages project create beckon --production-branch main    # once
 wrangler pages deploy site --project-name beckon
 ```
+
+Preview locally with the same redirects and headers Pages applies: `npx wrangler pages dev site`.
 
 Limits that matter: 25 MB per file, 20,000 files per deployment. Beckon's dmg is ~1 MB, so `releases/`
 can hold many versions. If the dmg ever grows past 25 MB, host `releases/` on R2 (or the GitHub

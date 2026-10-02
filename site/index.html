@@ -1,146 +1,554 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Beckon — Answer Claude Code from anywhere on your Mac</title>
-  <meta name="description" content="Beckon is a macOS menu-bar app that turns Claude Code permission prompts, questions and 'I'm done' moments into a small overlay on top of whatever you're doing. Answer in place; focus returns to your work.">
-  <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0b0c10">
-  <link rel="canonical" href="https://beckon.shubham.club/">
-  <meta property="og:type" content="website">
-  <meta property="og:title" content="Beckon — Answer Claude Code from anywhere on your Mac">
-  <meta property="og:description" content="Permission prompts, questions and finished turns from every Claude Code session, answered from an overlay over any app. Even fullscreen ones.">
-  <meta property="og:url" content="https://beckon.shubham.club/">
-  <meta property="og:image" content="https://beckon.shubham.club/og.png">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b0c10'/%3E%3Cpath d='M9 7h8.5a5.5 5.5 0 0 1 3.2 10 5.8 5.8 0 0 1-3.2 10.5H9zm4 3.6v4.6h4.2a2.3 2.3 0 1 0 0-4.6zm0 8.2v5.1h4.6a2.55 2.55 0 1 0 0-5.1z' fill='%23f5f5f7'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>beckon — Answer Claude Code from anywhere on your Mac</title>
+<meta name="description" content="Beckon is a free, open-source macOS menu-bar app. When a Claude Code session needs you, a small glass panel appears over whatever you are doing, even a fullscreen app. Press return. Get back to work.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0F1114">
+<link rel="canonical" href="https://beckon.shubham.club/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="beckon — Answer Claude Code from anywhere on your Mac">
+<meta property="og:description" content="Permission prompts, questions and finished turns from every Claude Code session, answered from a small panel over any app. Free, open source, macOS 14+.">
+<meta property="og:url" content="https://beckon.shubham.club/">
+<meta property="og:image" content="https://beckon.shubham.club/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="./assets/favicon-64.png" sizes="64x64">
+<link rel="apple-touch-icon" href="./assets/apple-touch-icon.png">
+<link rel="preload" href="./assets/fonts/FamiljenGrotesk.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
+<div class="sky" aria-hidden="true"></div>
 
-<header class="nav">
-  <a class="brand" href="#top" aria-label="Beckon home">
-    <span class="mark" aria-hidden="true">B</span><span>Beckon</span>
-  </a>
-  <nav aria-label="Page">
-    <a href="#how">How it works</a>
-    <a href="#faq">FAQ</a>
-    <a href="https://github.com/bhattji007/beckon" rel="noopener">GitHub</a>
-  </nav>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-return" viewBox="0 0 64 64"><path d="M46 14 V34 H18 M27 25 L18 34 L27 43" fill="none" stroke="currentColor" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path fill="currentColor" d="M12 .5A11.5 11.5 0 0 0 .5 12a11.5 11.5 0 0 0 7.86 10.92c.58.1.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.02 1.76 2.69 1.25 3.34.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.04 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.58.24 2.75.12 3.04.74.81 1.19 1.84 1.19 3.1 0 4.42-2.7 5.4-5.26 5.68.41.36.78 1.06.78 2.14v3.17c0 .31.2.67.8.56A11.5 11.5 0 0 0 23.5 12 11.5 11.5 0 0 0 12 .5z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4.5-4.5M12 15 7.5 10.5M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="nav" id="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="beckon home">
+      <span class="mark" aria-hidden="true"><svg style="color:#3DDC97"><use href="#i-return"/></svg></span>beckon
+    </a>
+    <nav aria-label="Page">
+      <a href="#how">How it works</a>
+      <a href="#safe">Safety</a>
+      <a href="#faq">FAQ</a>
+      <a class="gh" href="https://github.com/bhattji007/beckon" rel="noopener"><svg aria-hidden="true"><use href="#i-github"/></svg>GitHub</a>
+    </nav>
+    <a class="btn btn-primary btn-sm" href="/latest/Beckon.dmg"><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg><span>Download</span></a>
+  </div>
 </header>
 
 <main id="top">
 
-  <!-- Hero -->
-  <section class="hero">
-    <p class="eyebrow">For macOS 14+ · menu-bar app · free</p>
-    <h1>Answer Claude Code from anywhere on your Mac.</h1>
-    <p class="lede">
-      Permission prompts, questions and “I’m done” from every Claude Code session show up as a small card
-      over whatever you’re doing, even a fullscreen app. Answer in place. Focus goes straight back to your work.
-    </p>
-    <div class="cta">
-      <a class="btn btn-primary" href="/latest/Beckon.dmg" download>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-        Download for Mac
-      </a>
-      <p class="cta-note">
-        <a href="/latest/Beckon.zip">.zip instead</a> · <a href="/appcast.json">release feed</a> · Universal (Apple silicon &amp; Intel)
+<!-- ============ HERO ============ -->
+<section class="hero" id="hero">
+  <div class="wrap">
+    <div>
+      <h1><span class="ln"><span>Answer Claude</span></span><span class="ln"><span>Code from <em>anywhere</em></span></span><span class="ln"><span>on your Mac.</span></span></h1>
+      <p class="lede">When a session needs you — a permission, a question, a finished task — Beckon puts a small glass panel over whatever you are doing, even a fullscreen app. Press return. Get back to work.</p>
+      <div class="cta">
+        <a class="btn btn-primary btn-dl beam" href="/latest/Beckon.dmg"><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download for macOS</a>
+        <a class="btn btn-ghost btn-dl" href="https://github.com/bhattji007/beckon" rel="noopener"><svg aria-hidden="true"><use href="#i-github"/></svg>View source</a>
+      </div>
+      <p class="cta-meta">
+        <span>Beckon 0.9.1 · 1.9 MB</span><span>macOS 14+</span><span>Apple silicon &amp; Intel</span><span>Free, MIT</span>
+        <a href="#gatekeeper">Unsigned preview: read the Gatekeeper note</a>
       </p>
+      <div class="src" title="Build from source">
+        <span class="lbl">or build it</span>
+        <code><b>git clone</b> https://github.com/bhattji007/beckon <b>&amp;&amp; cd</b> beckon <b>&amp;&amp;</b> ./install.sh</code>
+        <button class="copy" data-copy="git clone https://github.com/bhattji007/beckon && cd beckon && ./install.sh" aria-label="Copy the build command"><svg aria-hidden="true"><use href="#i-copy"/></svg><span>Copy</span></button>
+      </div>
+      <p class="stage-tip live" id="stageNote"><i aria-hidden="true"></i><span><span id="noteText">The panel in the corner is live. Answer it</span><span class="kbdtip">, or press <kbd>⌥</kbd><kbd>Space</kbd></span>. <button type="button" id="replay" hidden>Replay</button></span></p>
     </div>
+    <div class="stage" aria-live="polite">
+      <div class="stack" id="stack" role="region" aria-label="Beckon demo panel"></div>
+    </div>
+  </div>
+</section>
 
-    <figure class="demo">
-      <!-- Drop the real screen recording at site/demo.mp4 (and a poster at site/demo-poster.jpg). -->
-      <video controls muted playsinline preload="metadata" poster="./demo-poster.jpg" width="1280" height="800">
-        <source src="./demo.mp4" type="video/mp4">
-        Your browser can’t play this video. <a href="./demo.mp4">Download the demo.</a>
-      </video>
-      <figcaption>A permission card appears over a fullscreen editor; one click answers it and focus returns.</figcaption>
+<!-- ============ THE STAGE: real snapshots, scroll-stepped over four apps ============ -->
+<section class="rule stage-sec" id="moments" aria-label="The kinds of requests Beckon shows">
+  <div class="track" id="track">
+    <div class="scene" id="scene">
+      <div class="lead" id="lead">
+        <h2>Three things Claude waits on. One panel, over anything.</h2>
+        <p>Keep scrolling. These are real captures from Beckon 0.9.1; only the app behind them changes.</p>
+      </div>
+      <div class="frame" id="frame">
+        <div class="bgp app-doc on" aria-hidden="true">
+          <div class="side">
+            <div>Home</div><div>Search</div>
+            <div class="h">Workspace</div>
+            <div>Roadmap</div><div class="cur">Q4 Launch Plan</div><div>Retro notes</div><div>Hiring</div><div>Design system</div>
+          </div>
+          <div class="page">
+            <h1>Q4 Launch Plan</h1>
+            <p>We ship the new onboarding on Nov 12. The goal is a 20% lift in day-1 retention without hurting activation on the free tier.</p>
+            <h2>Scope</h2>
+            <ul><li>Rewrite the first-run flow around a single “aha” moment</li><li>Kill the 6-step survey, replace with progressive profiling</li><li>Ship the referral loop behind a flag</li></ul>
+            <h2>Risks</h2>
+            <p>The billing migration lands the same week. If it slips, we decouple the referral loop and ship onboarding alone.</p>
+            <p>Open questions for Thursday — can we A/B the survey removal?<span class="caret"></span></p>
+          </div>
+        </div>
+        <div class="bgp app-code" aria-hidden="true">
+          <div class="tabs"><span class="cur"><i></i>rateLimit.ts</span><span><i style="background:#E8D36F"></i>usage.ts</span><span><i style="background:#C79BE8"></i>schema.prisma</span></div>
+          <pre><span><em class="k">import</em> { Hono } <em class="k">from</em> <em class="s">'hono'</em></span><span><em class="k">import</em> { rateLimit } <em class="k">from</em> <em class="s">'./middleware/rateLimit'</em></span><span><em class="k">import</em> { prisma } <em class="k">from</em> <em class="s">'./db'</em></span><span> </span><span><em class="k">const</em> app = <em class="k">new</em> <em class="f">Hono</em>()</span><span> </span><span><em class="c">// Per-key token bucket, 120 req/min</em></span><span class="hl">app.<em class="f">use</em>(<em class="s">'/v1/*'</em>, <em class="f">rateLimit</em>({</span><span class="hl">  window: <em class="s">60_000</em>,</span><span class="hl">  max: <em class="s">120</em>,</span><span class="hl">  key: (c) =&gt; c.req.<em class="f">header</em>(<em class="s">'x-api-key'</em>) ?? c.req.ip,</span><span class="hl">}))</span><span> </span><span>app.<em class="f">get</em>(<em class="s">'/v1/usage'</em>, <em class="k">async</em> (c) =&gt; {</span><span>  <em class="k">const</em> key = c.req.<em class="f">header</em>(<em class="s">'x-api-key'</em>)</span><span>  <em class="k">const</em> rows = <em class="k">await</em> prisma.usage.<em class="f">findMany</em>({</span><span>    where: { key },</span><span>    orderBy: { day: <em class="s">'desc'</em> },</span><span>    take: <em class="s">30</em>,</span><span>  })</span><span>  <em class="k">return</em> c.<em class="f">json</em>(rows)</span><span>})</span><span> </span><span>app.<em class="f">post</em>(<em class="s">'/v1/keys'</em>, <em class="k">async</em> (c) =&gt; {</span><span>  <em class="k">const</em> body = <em class="k">await</em> c.req.<em class="f">json</em>()</span><span>  <em class="k">const</em> key = <em class="k">await</em> prisma.key.<em class="f">create</em>({</span><span>    data: { owner: body.owner, scope: body.scope },</span><span>  })</span><span>  <em class="k">return</em> c.<em class="f">json</em>(key, <em class="s">201</em>)</span><span>})</span><span> </span><span><em class="k">export default</em> app</span></pre>
+          <div class="status"><span class="ok">✓ tsc</span><span>main*</span><span>Ln 8, Col 1</span><span>UTF-8</span><span>TypeScript</span></div>
+        </div>
+        <div class="bgp app-video" aria-hidden="true">
+          <div class="pic"></div>
+          <div class="slate">REC · Design review · week 40 · 4 in call</div>
+          <div class="slide"><small>Onboarding · v3</small><b>Cut the first-run flow from six steps to one.</b><ul><li>Single “aha” screen, no survey</li><li>Progressive profiling after day 1</li><li>Referral loop behind a flag</li><li>Day-1 retention target +20%</li></ul><div class="chart"><i></i><i></i><i></i><i></i><i></i></div></div>
+          <div class="faces"><i data-n="Priya"></i><i data-n="Tom"></i><i data-n="you"></i></div>
+          <div class="ctl"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg><span>18:42</span><span class="bar"></span><span>30:11</span><svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg></div>
+        </div>
+        <div class="bgp app-canvas" aria-hidden="true">
+          <div class="top"><span>Move</span><span class="cur">Frame</span><span>Text</span><span>Component</span><span class="name">Marketing site · Home</span></div>
+          <div class="layers"><div class="h">Layers</div><div class="sel">Home / Desktop</div><div class="in">Nav</div><div class="in">Hero</div><div class="in">Logo wall</div><div class="in">Pricing</div><div>Home / Mobile</div><div class="in">Nav</div><div class="in">Hero</div></div>
+          <div class="board">
+            <div class="art a1" data-name="Home / Desktop"><div class="nav"><b>acme</b>Product Docs Pricing<span>Start free</span></div><div class="hero"><b>Ship your docs site in an afternoon.</b><p>Write Markdown, push to main, and Acme turns it into a searchable, versioned site with a built-in changelog.</p><div class="cta"><i>Start free</i><i>See a demo</i></div></div></div>
+            <div class="art a2" data-name="Home / Mobile"><div class="m"><div class="b"></div><div></div><div></div><div></div></div></div>
+            <div class="sel-ring"></div>
+          </div>
+          <div class="props"><div class="h">Frame</div><div><span>W</span><span>1440</span></div><div><span>H</span><span>900</span></div><div><span>X</span><span>120</span></div><div><span>Y</span><span>80</span></div><div class="h" style="margin-top:14px">Fill</div><div><span>#FFFFFF</span><span>100%</span></div></div>
+        </div>
+        <div class="cardslot" id="cardslot">
+          <!-- Real overlay captures from Beckon 0.9.1 (BECKON_SNAPSHOT_DIR), 2x. -->
+          <img src="./assets/shots/permission.webp" width="472" height="318" alt="Beckon panel: api-gateway in Warp wants to run pnpm prisma migrate, with Allow, Always and Deny buttons and one item waiting" class="on" decoding="async">
+          <img src="./assets/shots/question.webp" width="472" height="405" alt="Beckon panel: web-dashboard asks which charting library the usage page should use, with three numbered options" loading="lazy" decoding="async">
+          <img src="./assets/shots/finished.webp" width="472" height="260" alt="Beckon panel: infra finished moving staging to Terraform modules, with a reply field and a Done button" loading="lazy" decoding="async">
+          <img src="./assets/shots/stack.webp" width="472" height="404" alt="Beckon panel with a file-edit permission active and four more requests waiting beneath it" loading="lazy" decoding="async">
+        </div>
+      </div>
+      <div class="copy">
+        <div class="panel-copy" data-step="0"><h2>Permission</h2><p>Allow once, allow always for this project, or deny. The panel shows the exact rule “Always” will write before you press it.</p></div>
+        <div class="panel-copy" data-step="1"><h2>Question</h2><p>Multiple choice from <code>AskUserQuestion</code>, numbered so a single key answers. Multi-select and multi-question flows included.</p></div>
+        <div class="panel-copy" data-step="2"><h2>Finished</h2><p>The last message, in full. Type the next prompt right there and it lands in that session’s terminal.</p></div>
+        <div class="panel-copy" data-step="3"><h2>Many at once</h2><p>Sessions and subagents queue in one panel: the newest request on top, the rest waiting beneath it. Hover to peek, click to promote.</p></div>
+      </div>
+      <div class="progress" aria-hidden="true"><b><i></i></b><b><i></i></b><b><i></i></b><b><i></i></b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DEMO VIDEO ============ -->
+<section class="rule" id="demo">
+  <div class="wrap">
+    <figure style="margin:0">
+      <div class="demo" id="demoFrame" data-watch>
+        <video controls muted playsinline preload="metadata" poster="./demo-poster.jpg" width="1280" height="800">
+          <source src="./demo.mp4" type="video/mp4">
+          Your browser can’t play this video. <a href="./demo.mp4">Download the demo.</a>
+        </video>
+        <div class="ph"><span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5z"/></svg>Demo video · 37 seconds</span></div>
+      </div>
+      <figcaption>Two sessions and a subagent asking while you write a doc, answered without switching windows. Rendered walkthrough of the first design; a screen recording of 0.9.1 replaces it soon.</figcaption>
     </figure>
-  </section>
+  </div>
+</section>
 
-  <!-- How it works -->
-  <section class="how" id="how">
-    <h2>How it works</h2>
-    <ol class="steps">
-      <li>
-        <span class="num" aria-hidden="true">1</span>
-        <h3>Download</h3>
-        <p>Open the dmg and drag Beckon to Applications. It lives in your menu bar; there is no window to manage.</p>
-      </li>
-      <li>
-        <span class="num" aria-hidden="true">2</span>
-        <h3>One-click hook install</h3>
-        <p>On first launch Beckon shows exactly which hook entries it will add to <code>~/.claude/settings.json</code> and asks for one click. Existing hooks are kept, a backup is saved, and running sessions pick it up instantly.</p>
-      </li>
-      <li>
-        <span class="num" aria-hidden="true">3</span>
-        <h3>Answer from the overlay</h3>
-        <p>Allow, deny, pick an option or type a reply on the card. <kbd>⌥</kbd><kbd>Space</kbd> focuses the top card, <kbd>Esc</kbd> hands you back. Dismiss a card and Claude’s normal prompt appears in the terminal.</p>
-      </li>
-    </ol>
-  </section>
-
-  <!-- Features strip -->
-  <section class="features" aria-label="Highlights">
-    <div><strong>Many sessions, one place.</strong> One card per request, newest on top, colour per project, host app shown as a chip.</div>
-    <div><strong>Only when you’re away.</strong> If the terminal that asked is already in front, Beckon stays quiet.</div>
-    <div><strong>Never steals focus.</strong> Cards appear without taking the keyboard; you opt in with a hotkey or a click.</div>
-    <div><strong>Logged.</strong> Every decision is appended to <code>~/.beckon/log.jsonl</code>. No private allow-lists.</div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="faq" id="faq">
-    <h2>FAQ</h2>
-
-    <details>
-      <summary>What does it require?</summary>
-      <p>macOS 14 (Sonoma) or newer, on Apple silicon or Intel, and Claude Code. No Accessibility, Screen Recording or Input Monitoring permissions are needed.</p>
-    </details>
-
-    <details>
-      <summary>Which terminals and editors does it work with?</summary>
-      <p>Any terminal (Ghostty, iTerm2, Terminal.app, Warp, kitty, WezTerm…), the VS Code and JetBrains extensions, and Claude Desktop. Hooks in <code>~/.claude/settings.json</code> run in all of them, and that is all Beckon relies on.</p>
-    </details>
-
-    <details>
-      <summary>What happens if Beckon isn’t running?</summary>
-      <p>If Beckon isn’t running, Claude Code works exactly as before. The hook is a tiny shim that exits immediately when it can’t reach the app, so Claude falls back to its normal terminal prompt. Quitting Beckon releases every held prompt first. Beckon can never make Claude Code worse.</p>
-    </details>
-
-    <details>
-      <summary>Does it phone home? What about my commands and code?</summary>
-      <p>No. Beckon makes no network connections except a periodic update check that fetches a small JSON file (<a href="/appcast.json">this one</a>) to tell you when a new version exists; nothing is sent, and nothing installs itself. The text shown on cards comes from the hook payload on your machine and stays there. The socket in <code>~/.beckon</code> is user-only.</p>
-    </details>
-
-    <details>
-      <summary>Does it auto-approve anything?</summary>
-      <p>Never. “Always” writes a regular Claude Code permission rule to the project’s <code>.claude/settings.local.json</code>, so it is visible to and honoured by Claude Code even with Beckon off. Hover the button to see the exact rule before you click.</p>
-    </details>
-
-    <details id="gatekeeper">
-      <summary>macOS says the app “can’t be verified” or is “damaged”. What now?</summary>
-      <p>Release builds are signed with a Developer ID and notarized by Apple, so you should only see this on a preview or self-built copy. If you do:</p>
-      <ol>
-        <li>Try to open Beckon once; dismiss the dialog (choose “Done”, not “Move to Trash”).</li>
-        <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll to the <em>Security</em> section and click <strong>Open Anyway</strong> next to the Beckon message. Confirm with Touch ID or your password.</li>
-        <li>Older systems: right-click (Control-click) Beckon.app in Applications and choose <strong>Open</strong>.</li>
+<!-- ============ HOW IT WORKS ============ -->
+<section class="rule" id="how">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <h2>Installed in a minute. Removable in a click.</h2>
+    </div>
+    <div class="how">
+      <ol class="steps">
+        <li data-reveal style="--i:0">
+          <h3>Download and open Beckon</h3>
+          <p>Drag it to Applications. It lives in the menu bar as a small return-key mark; there is no window to manage.</p>
+        </li>
+        <li data-reveal style="--i:1">
+          <h3>Click “Install hooks” once</h3>
+          <p>The onboarding window shows exactly which entries go into <code>~/.claude/settings.json</code>. Existing hooks are kept, a backup is saved, and running sessions pick it up immediately.</p>
+        </li>
+        <li data-reveal style="--i:2">
+          <h3>Answer from the panel</h3>
+          <p>Allow, deny, pick an option or type a reply. <kbd>⌥</kbd><kbd>Space</kbd> focuses the panel, <kbd>⏎</kbd> is the primary action, <kbd>Esc</kbd> hands you back. Dismiss a request and Claude’s normal prompt appears in the terminal instead.</p>
+        </li>
       </ol>
-      <p>If macOS calls the file “damaged”, the quarantine flag is in the way. In Terminal run <code>xattr -dr com.apple.quarantine /Applications/Beckon.app</code> and open it again. Only do this for a download whose SHA-256 matches the one on the <a href="https://github.com/bhattji007/beckon/releases" rel="noopener">release page</a>.</p>
-    </details>
+      <div class="pipe" id="pipe" aria-label="How a request travels" data-reveal="scale">
+        <div class="t">What happens when Claude asks</div>
+        <div class="l"><span class="a">claude</span><span class="c">PermissionRequest</span><span class="m">hook fires</span></div>
+        <div class="l"><span class="a">shim</span><span class="c">~/.beckon/bin/beckon-hook</span><span class="m">C, ~1 ms</span></div>
+        <div class="l"><span class="a">socket</span><span class="c">~/.beckon/beckon.sock</span><span class="m">user-only</span></div>
+        <div class="l"><span class="a">beckon</span><span class="c">panel appears</span><span class="m">no focus taken</span></div>
+        <div class="l"><span class="a">you</span><span class="c">Allow ⏎</span><span class="m">click or return</span></div>
+        <div class="l"><span class="a">reply</span><span class="c typed" data-text='{"behavior":"allow"}'></span><span class="m">back to Claude</span></div>
+        <div class="rail" aria-hidden="true"></div>
+        <div class="ret">If Beckon isn’t running the shim exits 0 in a millisecond and <b>Claude’s own prompt appears</b>. Nothing else changes.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <details>
-      <summary>How do I uninstall?</summary>
-      <p>Choose “Remove hooks” from the menu-bar menu (it removes exactly the entries it added), quit Beckon and drag it to the Trash. Optionally delete <code>~/.beckon</code>.</p>
-    </details>
-  </section>
+<!-- ============ HOSTS ============ -->
+<section class="rule" id="hosts">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <h2>Works with the terminal you already use.</h2>
+      <p>Beckon relies only on Claude Code’s hooks, so any host that runs Claude Code is covered. The panel shows which one is asking.</p>
+    </div>
+    <div class="marquee" data-reveal style="--i:1" aria-label="Supported hosts">
+      <div class="rail" id="rail">
+        <span style="--c:#3DDC97"><i></i>Warp</span><span style="--c:#6FA8F5"><i></i>Ghostty</span><span style="--c:#E8A04C"><i></i>iTerm2</span><span style="--c:#C79BE8"><i></i>Terminal</span><span style="--c:#E8D36F"><i></i>kitty</span><span style="--c:#F27A7A"><i></i>WezTerm</span><span style="--c:#6FA8F5"><i></i>VS Code extension</span><span style="--c:#E8A04C"><i></i>JetBrains extension</span><span style="--c:#3DDC97"><i></i>Claude Desktop</span><span style="--c:#C79BE8"><i></i>Any terminal that runs Claude Code</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SAFETY ============ -->
+<section class="rule" id="safe">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <h2>Safe to adopt on a Monday morning.</h2>
+      <p>Every promise below is a mechanism, not a policy. The source is MIT-licensed and short enough to read in an afternoon.</p>
+    </div>
+    <div class="safe">
+      <div class="r" data-reveal style="--i:0">
+        <h3><svg aria-hidden="true"><use href="#i-check"/></svg>Never worse than vanilla Claude Code</h3>
+        <p>Beckon quit, crashed or never launched: the hook shim can’t reach the socket, exits in about a millisecond, and Claude shows its normal terminal prompt. Quitting Beckon releases every held prompt first.</p>
+      </div>
+      <div class="r" data-reveal style="--i:1">
+        <h3><svg aria-hidden="true"><use href="#i-check"/></svg>Never approves anything you didn’t press</h3>
+        <p>No auto-allow, no hidden lists. “Always” writes a regular Claude Code permission rule to the project’s <code>.claude/settings.local.json</code>, visible to and honoured by Claude Code with Beckon off. Every decision is appended to <code>~/.beckon/log.jsonl</code>.</p>
+      </div>
+      <div class="r" data-reveal style="--i:2">
+        <h3><svg aria-hidden="true"><use href="#i-check"/></svg>No network, no permissions</h3>
+        <p>The only connection is an optional daily check of a small <a href="/appcast.json">JSON file</a> to tell you a new version exists; nothing is uploaded and nothing installs itself. No Accessibility, Screen Recording or Input Monitoring access is requested.</p>
+      </div>
+      <div class="r" data-reveal style="--i:3">
+        <h3><svg aria-hidden="true"><use href="#i-check"/></svg>Never steals focus</h3>
+        <p>The panel appears without taking the keyboard. If the terminal that asked is already in front, Beckon stays quiet and Claude’s own prompt shows. You opt in with <kbd>⌥</kbd><kbd>Space</kbd> or a click; <kbd>Esc</kbd> returns focus to the app you came from.</p>
+      </div>
+      <div class="r" data-reveal style="--i:4">
+        <h3><svg aria-hidden="true"><use href="#i-check"/></svg>One-click removal</h3>
+        <p>“Remove hooks” takes out exactly the entries it added and restores nothing else. Uninstall also removes <code>~/.beckon</code> and the login item. Claude Code keeps working.</p>
+      </div>
+    </div>
+    <div class="keys" aria-label="Keyboard shortcuts" data-reveal style="--i:5">
+      <div><kbd>⌥</kbd><span class="plus">+</span><kbd>Space</kbd> focus the panel</div>
+      <div><kbd>⏎</kbd> allow, pick, send</div>
+      <div><kbd>⌥</kbd><span class="plus">+</span><kbd>2</kbd><kbd>3</kbd> always, deny</div>
+      <div><kbd>⌥</kbd><span class="plus">+</span><kbd>J</kbd> take me to Claude</div>
+      <div><kbd>Esc</kbd> back to what you were doing</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DOWNLOAD ============ -->
+<section class="rule" id="download">
+  <div class="wrap">
+    <div class="dl" data-reveal="scale">
+      <div>
+        <h2>Press return. Get back to work.<span class="ret" aria-hidden="true"><svg style="color:#3DDC97"><use href="#i-return"/></svg></span></h2>
+        <p class="muted" style="margin-top:12px;max-width:34em">Beckon 0.9.1, universal build for macOS 14 and newer. Opens in the menu bar; the first-run window installs the hooks.</p>
+        <div class="cta">
+          <a class="btn btn-primary btn-dl" href="/latest/Beckon.dmg"><svg class="ico" aria-hidden="true"><use href="#i-down"/></svg>Download .dmg</a>
+          <a class="btn btn-ghost btn-dl" href="/latest/Beckon.zip">Download .zip</a>
+        </div>
+        <p class="cta-meta">
+          <a href="https://github.com/bhattji007/beckon/releases/latest" rel="noopener">Release notes</a>
+          <a href="/releases/SHA256SUMS.txt">SHA-256 checksums</a>
+          <a href="/appcast.json">Update feed</a>
+        </p>
+        <div class="srcblock">
+          <div class="t">Prefer to build it yourself? One command, no Xcode project, Command Line Tools only.</div>
+          <pre><code><b>git clone</b> https://github.com/bhattji007/beckon <b>&amp;&amp; cd</b> beckon <b>&amp;&amp;</b> ./install.sh</code><button class="copy" data-copy="git clone https://github.com/bhattji007/beckon && cd beckon && ./install.sh" aria-label="Copy the build command"><svg aria-hidden="true"><use href="#i-copy"/></svg><span>Copy</span></button></pre>
+        </div>
+      </div>
+      <div class="gate" id="gatekeeper">
+        <h3><svg aria-hidden="true"><use href="#i-warn"/></svg>Preview builds are not yet signed</h3>
+        <ol>
+          <li>Open Beckon once. When macOS says it can’t verify the developer, choose <strong>Done</strong> (not “Move to Trash”).</li>
+          <li>Open <strong>System Settings → Privacy &amp; Security</strong>, scroll to <em>Security</em>, click <strong>Open Anyway</strong>, confirm with Touch ID or your password.</li>
+          <li>Launch Beckon again. You won’t be asked next time.</li>
+        </ol>
+        <p>Signed and notarized builds will replace this step once the Developer ID is issued. Until then, compare the SHA-256 with the checksums file before you open anything.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="rule" id="faq">
+  <div class="wrap">
+    <div class="sec-head" data-reveal><h2>Questions</h2></div>
+    <div class="faq" id="faqList" data-reveal style="--i:1">
+      <details>
+        <summary>What does it need?</summary>
+        <p>macOS 14 (Sonoma) or newer on Apple silicon or Intel, and Claude Code. No Accessibility, Screen Recording or Input Monitoring permissions. Building from source needs the Xcode Command Line Tools only.</p>
+      </details>
+      <details>
+        <summary>Which terminals and editors does it work with?</summary>
+        <p>Any terminal (Warp, Ghostty, iTerm2, Terminal, kitty, WezTerm and others), the VS Code and JetBrains extensions, and Claude Desktop. Hooks in <code>~/.claude/settings.json</code> run in all of them, and that is all Beckon relies on.</p>
+      </details>
+      <details>
+        <summary>What happens if Beckon isn’t running?</summary>
+        <p>Claude Code behaves exactly as before. The hook is a tiny shim that exits immediately when it can’t reach the app, so Claude falls back to its normal terminal prompt. Quitting Beckon releases every held prompt first.</p>
+      </details>
+      <details>
+        <summary>Does it phone home? What about my commands and code?</summary>
+        <p>No. The only network request is a periodic check of <a href="/appcast.json">appcast.json</a> to tell you when a new version exists. Nothing is sent, nothing installs itself. The text on the panel comes from the hook payload on your machine and stays there; the socket in <code>~/.beckon</code> is user-only.</p>
+      </details>
+      <details>
+        <summary>I’m in auto permission mode and see very few requests. Is that right?</summary>
+        <p>Yes. Permission requests only appear when Claude actually asks, and in auto mode it rarely does. You’ll still get questions, finished turns and idle notices. If you want permission requests, start sessions with <code>claude --permission-mode manual</code>.</p>
+      </details>
+      <details>
+        <summary>Does it ever approve something on its own?</summary>
+        <p>Never. “Always” writes an ordinary Claude Code permission rule to the project’s <code>.claude/settings.local.json</code>, where you can read and edit it. The panel shows the exact rule first. Every decision is logged to <code>~/.beckon/log.jsonl</code>.</p>
+      </details>
+      <details>
+        <summary>macOS says the app “can’t be verified” or is “damaged”.</summary>
+        <p>Preview builds aren’t signed yet. Follow the three steps in the <a href="#gatekeeper">Gatekeeper note</a>. If macOS calls the file “damaged”, the quarantine flag is in the way: run <code>xattr -dr com.apple.quarantine /Applications/Beckon.app</code> and open it again, but only for a download whose SHA-256 matches the <a href="/releases/SHA256SUMS.txt">checksums file</a>.</p>
+      </details>
+      <details>
+        <summary>How do I uninstall?</summary>
+        <p>Choose “Uninstall” from the menu-bar menu. It removes the hook entries it added, <code>~/.beckon</code>, the login item, and moves the app to the Trash. Or “Remove hooks” alone if you just want Claude’s prompts back in the terminal.</p>
+      </details>
+    </div>
+  </div>
+</section>
 
 </main>
 
-<footer class="foot">
-  <p>Beckon is an independent project and is not affiliated with Anthropic. Claude and Claude Code are trademarks of Anthropic, PBC.</p>
-  <p><a href="https://github.com/bhattji007/beckon" rel="noopener">Source</a> · <a href="https://github.com/bhattji007/beckon/releases" rel="noopener">Releases &amp; checksums</a> · <a href="/appcast.json">appcast.json</a> · <a href="https://shubham.club">shubham.club</a></p>
+<footer>
+  <div class="wrap">
+    <div>
+      <a class="brand" href="#top"><span class="mark" aria-hidden="true"><svg style="color:#3DDC97"><use href="#i-return"/></svg></span>beckon</a>
+      <p class="legal">Open source under the MIT license. Beckon is an independent project and is not affiliated with Anthropic. Claude and Claude Code are trademarks of Anthropic, PBC.</p>
+    </div>
+    <nav aria-label="Project links">
+      <a href="https://github.com/bhattji007/beckon" rel="noopener">GitHub</a>
+      <a href="https://github.com/bhattji007/beckon/releases" rel="noopener">Releases</a>
+      <a href="https://github.com/bhattji007/beckon/issues" rel="noopener">Issues</a>
+      <a href="https://github.com/bhattji007/beckon/blob/main/CONTRIBUTING.md" rel="noopener">Contributing</a>
+      <a href="https://github.com/bhattji007/beckon/blob/main/SECURITY.md" rel="noopener">Security</a>
+      <a href="/appcast.json">appcast.json</a>
+      <a href="https://shubham.club">shubham.club</a>
+    </nav>
+  </div>
 </footer>
 
+<script>
+(() => {
+  'use strict';
+  const $ = (s, r = document) => r.querySelector(s);
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- nav hairline ---------- */
+  const nav = $('#nav');
+  addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 8), { passive: true });
+
+  /* ---------- copy buttons ---------- */
+  document.querySelectorAll('.copy[data-copy]').forEach(b => {
+    b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(b.dataset.copy); } catch (e) {}
+      const t = b.querySelector('span'); const old = t.textContent;
+      b.classList.add('done'); t.textContent = 'Copied';
+      setTimeout(() => { b.classList.remove('done'); t.textContent = old; }, 1600);
+    });
+  });
+
+  /* ---------- demo video: hide placeholder once a source exists ---------- */
+  const v = $('#demoFrame video');
+  v.addEventListener('loadedmetadata', () => $('#demoFrame').classList.add('has-src'), { once: true });
+
+  /* ---------- hero intro accent ---------- */
+  requestAnimationFrame(() => $('#hero').classList.add('lit'));
+
+  /* ---------- one reveal observer for the whole page ---------- */
+  const io = new IntersectionObserver(es => es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } }), { threshold: 0.15, rootMargin: '0px 0px -5% 0px' });
+  document.querySelectorAll('[data-reveal],[data-watch]').forEach(el => io.observe(el));
+
+  /* ---------- marquee: duplicate once for a seamless loop ---------- */
+  const rail = $('#rail');
+  if (rail) rail.innerHTML += rail.innerHTML.replace(/<span /g, '<span class="dup" aria-hidden="true" ');
+
+  let pauseDemo = () => {};
+
+  /* ---------- the stage: scroll-stepped scene ---------- */
+  const track = $('#track'), scene = $('#scene'), frame = $('#frame'), slot = $('#cardslot');
+  const shots = [...slot.querySelectorAll('img')];
+  const bgs = [...frame.querySelectorAll('.bgp')], panels = [...scene.querySelectorAll('.panel-copy')], bars = [...scene.querySelectorAll('.progress b')];
+  let step = -1, ticking = false;
+  const setStep = s => {
+    if (s === step) return; step = s;
+    bgs.forEach((b, i) => b.classList.toggle('on', i === s));
+    shots.forEach((t, i) => t.classList.toggle('on', i === s));
+    panels.forEach((p, i) => p.classList.toggle('on', i === s));
+    bars.forEach((b, i) => { b.classList.toggle('on', i === s); b.classList.toggle('done', i < s); });
+    scene.classList.toggle('light', s === 0 || s === 3);
+  };
+  const tick = () => {
+    ticking = false;
+    const vh = innerHeight, start = track.getBoundingClientRect().top + scrollY, len = track.offsetHeight - vh;
+    const p = Math.min(1, Math.max(0, (scrollY - start) / len));
+    const grow = Math.min(1, p / 0.22);
+    frame.style.setProperty('--p', grow.toFixed(3));
+    scene.classList.toggle('deep', p > 0.12);
+    setStep(p < 0.36 ? 0 : p < 0.58 ? 1 : p < 0.8 ? 2 : 3);
+    scene.classList.toggle('show', grow > 0.85);
+    if (p > 0 && p < 1) pauseDemo();
+  };
+  if (reduced) { setStep(0); scene.classList.add('show'); }
+  else {
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(tick); } };
+    addEventListener('scroll', onScroll, { passive: true }); addEventListener('resize', onScroll); tick();
+  }
+
+  /* ---------- the trace: plays when it scrolls into view, replays on return ---------- */
+  const pipe = $('#pipe'), typed = pipe.querySelector('.typed'), lines = [...pipe.querySelectorAll('.l')];
+  let pipeTimers = [];
+  const pipeStop = () => { pipeTimers.forEach(clearTimeout); pipeTimers = []; pipe.classList.remove('play', 'done'); lines.forEach(l => l.classList.remove('now')); typed.textContent = ''; };
+  const pipePlay = () => {
+    pipeStop(); pipe.classList.add('play');
+    const at = [0, 100, 500, 900, 1300, 1900, 2500];
+    lines.forEach((l, i) => pipeTimers.push(setTimeout(() => { lines.forEach(x => x.classList.remove('now')); l.classList.add('now'); }, at[i] + 60)));
+    const text = typed.dataset.text; const t0 = 2600, per = reduced ? 0 : 38;
+    [...text].forEach((ch, i) => pipeTimers.push(setTimeout(() => { typed.textContent += ch; }, t0 + i * per)));
+    pipeTimers.push(setTimeout(() => pipe.classList.add('done'), t0 + text.length * per + 1400));
+  };
+  new IntersectionObserver(([en]) => en.isIntersecting ? pipePlay() : pipeStop(), { threshold: 0.4 }).observe(pipe);
+
+  /* ---------- FAQ: animate open/close while keeping <details> semantics ---------- */
+  document.querySelectorAll('#faqList details').forEach(d => {
+    const s = d.querySelector('summary'), ans = document.createElement('div'), inner = document.createElement('div');
+    ans.className = 'ans'; [...d.children].forEach(c => { if (c !== s) inner.appendChild(c); }); ans.appendChild(inner); d.appendChild(ans);
+    s.addEventListener('click', e => {
+      e.preventDefault();
+      if (reduced) { d.open = !d.open; return; }
+      if (!d.open) { d.classList.add('closing'); d.open = true; requestAnimationFrame(() => requestAnimationFrame(() => d.classList.remove('closing'))); }
+      else { d.classList.add('closing'); ans.addEventListener('transitionend', () => { d.open = false; d.classList.remove('closing'); }, { once: true }); }
+    });
+  });
+
+  /* ==================================================================
+     Live panel in the hero. One glass panel, newest request active,
+     the rest in a Waiting list, like Beckon 0.9.1.
+  ================================================================== */
+  const RET = '<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M46 14 V34 H18 M27 25 L18 34 L27 43" fill="none" stroke="currentColor" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ITEMS = {
+    permission: { project: 'api-gateway', color: '#E8A04C', host: 'Warp', glyph: 'W', title: 'Run a shell command', line: 'pnpm prisma migrate dev --name add_rate_limits',
+      body: `<div class="cmd">pnpm prisma migrate dev --name add_rate_limits \\\n  && pnpm test --filter gateway</div>
+        <div class="acts"><button class="b primary" data-act="allow">Allow ${RET}</button><button class="b" data-act="always">Always <span class="tail">migrate:*</span></button><button class="b deny" data-act="deny">Deny</button><span class="sp"></span><button class="b ghost" data-act="dismiss">Claude ↗</button></div>
+        <div class="note">Always writes <code>Bash(pnpm prisma migrate:*)</code> to this project</div>`,
+      hints: '<span><span class="k m">⏎</span> allow</span><span><span class="k">⌥2</span> always</span><span><span class="k">⌥3</span> deny</span><span><span class="k">⌥J</span> claude</span>' },
+    question: { project: 'web-dashboard', color: '#6FA8F5', host: 'VS Code', glyph: 'VS', title: 'Which charting library should the usage page use?', line: 'Question 1 of 2 · Which charting library?',
+      body: `<div class="opts">
+        <button class="opt" data-act="pick"><span class="n">1</span><span class="l"><b>Recharts</b><span>Composable React components. Already in package.json.</span></span></button>
+        <button class="opt" data-act="pick"><span class="n">2</span><span class="l"><b>visx</b><span>Low-level primitives. More code, full control over rendering.</span></span></button>
+        <button class="opt" data-act="pick"><span class="n">3</span><span class="l"><b>Chart.js</b><span>Canvas-based, smallest bundle. Needs a React wrapper.</span></span></button></div>
+        <div class="acts"><span class="note">Single choice · next: Date range default</span><span class="sp"></span><button class="b ghost" data-act="dismiss">Claude ↗</button></div>`,
+      hints: '<span><span class="k m">1</span>–<span class="k m">3</span> choose</span><span><span class="k">⌥J</span> claude</span>' },
+    finished: { project: 'infra', color: '#C79BE8', host: 'Claude Desktop', glyph: 'C', title: '', line: 'Finished · Moved staging to Terraform modules',
+      body: `<div class="summary">Moved staging to Terraform modules. 3 workspaces, plan is clean, nothing applied yet.</div>
+        <div class="reply"><label class="field"><span class="sr">Reply to infra</span><input type="text" placeholder="Reply to infra" autocomplete="off"><button class="ret" data-act="send" aria-label="Send reply">⏎</button></label><div class="sent">Sent to infra</div><button class="b done" data-act="done">Done</button></div>`,
+      hints: '<span><span class="k m">⏎</span> send</span><span><span class="k">⌥1</span> done</span><span><span class="k">⌥J</span> claude</span>' }
+  };
+  const stack = $('#stack'), note = $('#noteText'), replay = $('#replay'), hero = $('#hero');
+  const mq = matchMedia('(max-width: 1100px)');
+  const place = () => stack.classList.toggle('docked', mq.matches);
+  mq.addEventListener('change', place); place();
+
+  let items = [], panel = null, focused = false, running = false, timers = [], sentState = {};
+  const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+  const render = (swap) => {
+    if (!items.length) { if (panel) { const p = panel; panel = null; p.classList.add('leave'); const fin = () => { p.remove(); if (running) quiet(); }; reduced ? fin() : p.addEventListener('animationend', fin, { once: true }); } return; }
+    const a = ITEMS[items[0]], rest = items.slice(1);
+    const html = `
+      <div class="active${swap ? ' swap' : ''}${sentState[items[0]] ? ' issent' : ''}" data-kind="${items[0]}">
+        <div class="bar"></div>
+        <div class="hdr"><span class="dot" style="--c:${a.color}"></span><b>${a.project}</b><span>·</span><span class="host"><i>${a.glyph}</i>${a.host}</span><span class="sp"></span><span>now</span><span class="count">1 of ${items.length}</span></div>
+        ${a.title ? `<div class="title">${esc(a.title)}</div>` : ''}
+        ${a.body}
+      </div>
+      ${rest.length ? `<div class="whead">Waiting · ${rest.length}</div>` + rest.map(k => { const r = ITEMS[k]; return `<button class="row" data-promote="${k}"><span class="dot" style="--c:${r.color}"></span><b>${r.project}</b><i>${r.glyph}</i><span class="t">${esc(r.line)}</span><span class="when">now</span></button>`; }).join('') : ''}
+      <div class="foot">${RET.replace('stroke="currentColor"', 'stroke="#3DDC97"')}${focused ? a.hints : '<span><span class="k">⌥Space</span> to use keys</span>'}<span class="sp"></span><span class="k">esc</span>${rest.length ? `<span class="more">+${rest.length} more</span>` : ''}</div>`;
+    if (!panel) { panel = document.createElement('div'); panel.className = 'panel enter'; stack.appendChild(panel); panel.addEventListener('animationend', () => panel && panel.classList.remove('enter'), { once: true }); }
+    panel.classList.toggle('focused', focused);
+    panel.innerHTML = html;
+    if (focused) { const inp = panel.querySelector('input'); if (inp) inp.focus({ preventScroll: true }); }
+  };
+  const quiet = () => {
+    const q = document.createElement('div'); q.className = 'quiet enter'; q.innerHTML = '<i></i>Back to work. Nothing to switch to.';
+    stack.appendChild(q);
+    timers.push(setTimeout(() => { q.classList.add('leave'); q.addEventListener('animationend', () => q.remove(), { once: true }); }, 2200));
+    running = false; replay.hidden = false; note.textContent = 'All answered'; $('.kbdtip').hidden = true;
+  };
+  const resolve = (kind, act) => {
+    if (items[0] !== kind) return;
+    if (act === 'send') { sentState[kind] = true; render(false); timers.push(setTimeout(() => { items.shift(); render(true); }, 900)); return; }
+    items.shift(); render(true);
+  };
+  const spawn = kind => { if (!running || items.includes(kind)) return; items.unshift(kind); render(true); };
+  const setFocus = on => { focused = on; render(false); if (!on && document.activeElement) document.activeElement.blur(); };
+
+  stack.addEventListener('click', e => {
+    const pr = e.target.closest('[data-promote]');
+    if (pr) { const k = pr.dataset.promote; items = [k, ...items.filter(x => x !== k)]; render(true); return; }
+    const b = e.target.closest('[data-act]'); if (!b) return;
+    const kind = b.closest('.active').dataset.kind;
+    if (b.dataset.act === 'pick') { b.classList.add('sel'); timers.push(setTimeout(() => resolve(kind, 'pick'), 180)); return; }
+    resolve(kind, b.dataset.act);
+  });
+  stack.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('input')) { e.preventDefault(); resolve(items[0], 'send'); } });
+  stack.addEventListener('focusin', () => { if (!focused) { focused = true; panel && panel.classList.add('focused'); } });
+  addEventListener('keydown', e => {
+    if (!items.length) return;
+    if (e.altKey && e.code === 'Space') { e.preventDefault(); setFocus(!focused); return; }
+    if (!focused) return;
+    const kind = items[0], typing = e.target.matches('input');
+    if (e.key === 'Escape') { e.preventDefault(); setFocus(false); return; }
+    const n = { Digit1: 1, Digit2: 2, Digit3: 3 }[e.code];
+    if (n && (e.altKey || !typing)) {
+      e.preventDefault();
+      if (kind === 'permission') resolve(kind, ['allow', 'always', 'deny'][n - 1]);
+      else if (kind === 'question') { const o = panel.querySelectorAll('.opt')[n - 1]; if (o) { o.classList.add('sel'); timers.push(setTimeout(() => resolve(kind, 'pick'), 180)); } }
+      else if (kind === 'finished' && n === 1) resolve(kind, 'done');
+      return;
+    }
+    if (e.key === 'Enter' && !typing) { e.preventDefault(); resolve(kind, kind === 'permission' ? 'allow' : kind === 'question' ? 'pick' : 'done'); }
+    if (e.altKey && e.code === 'KeyJ') { e.preventDefault(); resolve(kind, 'dismiss'); }
+  });
+
+  const stop = () => { timers.forEach(clearTimeout); timers = []; running = false; };
+  pauseDemo = () => {
+    if (!running && !items.length) return;
+    stop(); items = []; sentState = {}; if (panel) { panel.remove(); panel = null; }
+    stack.classList.add('gone'); replay.hidden = false; note.textContent = 'Demo paused while you scroll'; $('.kbdtip').hidden = true;
+  };
+  const start = () => {
+    stop(); stack.innerHTML = ''; panel = null; items = []; sentState = {}; focused = false; running = true;
+    stack.classList.remove('gone'); replay.hidden = true;
+    note.textContent = mq.matches ? 'The panel below is live. Answer it' : 'The panel in the corner is live. Answer it'; $('.kbdtip').hidden = false;
+    const d = reduced ? [200, 1400, 2600] : [900, 7000, 13500];
+    timers.push(setTimeout(() => spawn('permission'), d[0]));
+    timers.push(setTimeout(() => spawn('question'), d[1]));
+    timers.push(setTimeout(() => spawn('finished'), d[2]));
+  };
+  replay.addEventListener('click', start);
+
+  /* The panel only floats while the hero is on screen; scrolling away hands it back,
+     exactly as switching to the terminal would. */
+  let seen = false;
+  new IntersectionObserver(([en]) => {
+    if (en.isIntersecting) { if (!seen) { seen = true; start(); } }
+    else if (!mq.matches) pauseDemo();
+  }, { threshold: 0.15 }).observe(hero);
+})();
+</script>
 </body>
 </html>
