@@ -46,6 +46,11 @@ final class OverlayController {
             guard let self else { return }
             if self.store.focused { self.store.focused = false }
         }
+        // Wake / display-config changes can leave the panel ordered out while cards are pending; re-layout.
+        for name in [NSWorkspace.didWakeNotification, NSWorkspace.activeSpaceDidChangeNotification] {
+            NSWorkspace.shared.notificationCenter.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in self?.relayout() }
+        }
+        NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification, object: nil, queue: .main) { [weak self] _ in self?.relayout() }
         Hotkey.shared.onPress = { [weak self] in self?.toggleFocus() }
         Hotkey.shared.registerFromPrefs()
     }
@@ -61,7 +66,10 @@ final class OverlayController {
         let sf = screen.visibleFrame
         let origin = NSPoint(x: sf.maxX - Self.panelWidth - 4, y: sf.maxY - height - 6)
         panel.setFrame(NSRect(origin: origin, size: NSSize(width: Self.panelWidth, height: height)), display: true)
-        if !panel.isVisible { panel.orderFrontRegardless() }
+        // Always re-order: after display sleep / Space changes the panel can report isVisible while the
+        // window server has it off screen, and the old `if !isVisible` guard then never showed a card.
+        if panel.isVisible && !panel.isOnActiveSpace { Log.event(["kind": "panel-stale", "note": "visible but not on active space"]) }
+        panel.orderFrontRegardless()
         snapshotIfRequested()
     }
 

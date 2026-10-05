@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.2 — 2026-10-05
+
+- Fix: after a day or two of uptime (display sleep / Space changes) the overlay panel could report itself visible while the window server had it off screen, so cards were held but never shown. The panel is now re-ordered front on every layout and after wake, Space and display changes; a `panel-stale` log entry records when the bad state was caught.
+- `app/tests/smoke.sh` now asks the window server whether the panel is actually on screen while a card is held, and hidden again afterwards (10 checks).
+
 ## 0.9.1 — 2026-10-03
 
 - New overlay design, "Smoked glass": one glass panel with an active item, a Waiting list that expands on hover, and a footer with key hints. Mint return-key brand mark, Familjen Grotesk + JetBrains Mono (bundled, OFL). See `app/DESIGN-BRIEF.md §6` and `app/Resources/brand/BRAND.md`.

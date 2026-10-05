@@ -14,6 +14,14 @@ defaults write club.shubham.beckon showWhenHostInFront -bool true
 trap 'defaults write club.shubham.beckon showWhenHostInFront -bool $RESTORE; pkill -x beckon-hook 2>/dev/null || true' EXIT
 SID="smoke-$$"
 lines_before=$(wc -l < "$LOG" | tr -d " ")
+# Asks the window server whether Beckon's overlay panel (statusBar level, 472 pt wide) is actually on screen.
+panel_onscreen(){ osascript -l JavaScript -e '
+ObjC.import("CoreGraphics");
+const arr = ObjC.castRefToObject($.CGWindowListCopyWindowInfo($.kCGWindowListOptionAll, $.kCGNullWindowID));
+let found = false;
+for (let i = 0; i < arr.count; i++) { const w = ObjC.deepUnwrap(arr.objectAtIndex(i));
+  if (w.kCGWindowOwnerName === "Beckon" && w.kCGWindowLayer === 25 && w.kCGWindowIsOnscreen === true && w.kCGWindowBounds.Width > 400) found = true; }
+found ? "onscreen" : "offscreen"' 2>/dev/null; }
 
 echo "1. non-blocking event passes through instantly"
 t0=$(date +%s%N); echo "{\"hook_event_name\":\"SessionStart\",\"session_id\":\"$SID\",\"cwd\":\"$PWD\"}" | "$SHIM"; t1=$(date +%s%N)
@@ -23,6 +31,7 @@ grep -q "\"session\":\"$SID\"" "$LOG" && ok "event logged" || bad "event not log
 echo "2. PermissionRequest is held while the card is up, dropped when the hook dies"
 (echo "{\"hook_event_name\":\"PermissionRequest\",\"session_id\":\"$SID\",\"cwd\":\"$PWD\",\"tool_name\":\"Bash\",\"tool_input\":{\"command\":\"echo smoke\"},\"permission_suggestions\":[]}" | "$SHIM" >/dev/null) & P=$!
 sleep 1.5; kill -0 $P 2>/dev/null && ok "shim still waiting after 1.5s" || bad "shim exited early"
+[ "$(panel_onscreen)" = "onscreen" ] && ok "overlay panel is on screen" || bad "overlay panel NOT on screen (card held but invisible)"
 kill $P 2>/dev/null; pkill -x beckon-hook 2>/dev/null || true; wait $P 2>/dev/null || true; sleep 1
 tail -n +"$lines_before" "$LOG" | grep -q "\"kind\":\"peer-closed\",\"session\":\"$SID\"" && ok "peer-closed logged" || bad "no peer-closed"
 
@@ -38,5 +47,6 @@ t0=$(date +%s%N); echo "{\"hook_event_name\":\"Stop\",\"session_id\":\"$SID\",\"
 
 echo "5. SessionEnd clears the session"
 echo "{\"hook_event_name\":\"SessionEnd\",\"session_id\":\"$SID\",\"cwd\":\"$PWD\"}" | "$SHIM" && ok "SessionEnd accepted"
+sleep 0.5; [ "$(panel_onscreen)" = "offscreen" ] && ok "overlay panel hidden again" || bad "overlay panel still on screen with nothing pending"
 
 echo; echo "passed $pass, failed $fail"; [ "$fail" -eq 0 ]
